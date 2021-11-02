@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">android-mobile-app</string>
+    <string name="title_activity_measurement_movesense">MeasurementMovesense</string>
+    <string name="write_external_storage_permission_title">Write External Storage Permission</string>
+    <string name="write_external_storage_permission_text">Saving files required Write External Storage Permission</string>
+    <string name="btn_ok">OK</string>
+    <string name="heart_rate">Heart Rate (BPM): </string>
+    <string name="RMSSD">Heart Rate Variability (RMSSD): </string>
+    <string name="title_location_permission">Location permission</string>
+    <string name="text_location_permission">Bluetooth LE scanning requires location permission</string>
+    <string name="please_wait_connecting">Connecting may take 10-30s \nPlease Wait...</string>
+    <string name="connecting">Connecting</string>
+    <string name="Movesense">Movesense</string>
+    <string-array name="fixedNumber">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>180</item>
+        <item>300</item>
+    </string-array>
+    <string name="Sensor_Number">SN:</string>
+    <string name="title_activity_movesense">MovesenseActivity</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+</resources>

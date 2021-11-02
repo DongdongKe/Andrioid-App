@@ -1,0 +1,118 @@
+apply plugin: 'com.android.application'
+
+android.defaultConfig.vectorDrawables.useSupportLibrary = true
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    // added to exclude duplicate file
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+
+    defaultConfig {
+        applicationId "com.example.android_mobile_app"
+        minSdkVersion 26
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    // Default dependencies
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation files('libs\\javabuilder.jar')
+    implementation files('libs\\sparsEDA.jar')
+    implementation "androidx.cardview:cardview:1.0.0"
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //Mockito Framework
+    androidTestImplementation 'org.mockito:mockito-core:1.10.19'
+    //Espresso Testing
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+
+
+    // Movesense .aar lib
+    implementation(name: 'mdslib', version: '1.44.0(1)-release', ext: 'aar')
+
+    // ButterKnife
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+
+
+    // RxAndroidBle
+    implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+
+    // Shimmer GSR 3 unit
+    //implementation 'ShimmerAndroidInstrumentDriver:ShimmerAndroidInstrumentDriver:3.0.65Beta'
+    implementation(group: 'com.shimmersensing', name: 'ShimmerAndroidInstrumentDriver', version: '3.0.71Beta', ext: 'aar')
+    implementation (group: 'com.shimmersensing', name: 'ShimmerBluetoothManager', version:'0.9.42beta'){
+        // excluding org.json which is provided by Android
+        exclude group: 'io.netty'
+        exclude group: 'com.google.protobuf'
+        exclude group: 'org.apache.commons.math'
+    }
+    implementation (group: 'com.shimmersensing', name: 'ShimmerDriver', version:'0.9.138beta'){
+        // excluding org.json which is provided by Android
+        exclude group: 'io.netty'
+        exclude group: 'com.google.protobuf'
+        exclude group: 'org.apache.commons.math'
+    }
+    // Needed to exceed the limitations of a single DEX file
+    implementation 'com.android.support:multidex:1.0.3'
+
+    // Material Design Components
+    implementation 'com.google.android.material:material:1.2.1'
+
+    // Needed for the Empatica E4 link API library
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'com.empatica.empalink:E4link:1.0.0@aar'
+
+    // Graph
+    implementation 'com.jjoe64:graphview:4.2.2'
+
+    // REST
+    implementation 'com.android.volley:volley:1.1.1'
+
+//    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+//
+    implementation 'tech.gusavila92:java-android-websocket-client:1.2.2'
+
+
+    def room_version = "2.2.5"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // used for database debugging
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+}

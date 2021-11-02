@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="#f6f7f9"
+    tools:context=".activities.Home">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:layout_height="140dp"
+            android:layout_width="match_parent"
+            android:background="#f7f8fa"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="left">
+
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:text="Skin Conductance App"
+                    android:textColor="#663366"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/toolbar_title2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:text="Main Menu"
+                    android:textColor="#663366"
+                    android:textSize="20dp"
+                    android:textStyle="normal" />
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="2"
+                >
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="Measurement"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/graph"
+                        android:scaleType="centerCrop"
+                        app:tint="#ffa7b2"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:gravity="center"
+                        android:paddingBottom="25dp"
+                        android:text="Measure Skin Conductance"
+                        android:textColor="#663366"
+                        android:textSize="13dp"
+                        android:textStyle="bold" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_marginTop="30dp"
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="Data"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_baseline_bar_chart_24"
+                        android:scaleType="centerCrop"
+                        app:tint="#0b69ff"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:gravity="center"
+                        android:paddingBottom="25dp"
+                        android:text="Saved Measurements"
+                        android:textColor="#663366"
+                        android:textSize="13dp"
+                        android:textStyle="bold" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="2"
+                >
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="Wearables"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_baseline_watch_24"
+                        android:scaleType="centerCrop"
+                        app:tint="#2edbb0"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Wearables"
+                        android:textColor="#663366"
+                        android:gravity="center"
+                        android:layout_gravity="bottom"
+                        android:textStyle="bold"
+                        android:paddingBottom="25dp"
+                        android:textSize="13dp" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_marginTop="30dp"
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="Settings"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/settings"
+                        android:scaleType="centerCrop"
+                        app:tint="#fcdd80"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:gravity="center"
+                        android:paddingBottom="25dp"
+                        android:text="Settings"
+                        android:textColor="#663366"
+                        android:textSize="13dp"
+                        android:textStyle="bold" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:layout_marginTop="30dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:cardBackgroundColor="#663366"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_width="150dp">-->
+
+
+<!--            <RelativeLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <ImageView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:src="@drawable/ic_baseline_data_usage_24"-->
+<!--                    />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Meet huidgeleiding"-->
+<!--                    android:textColor="#fff"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_gravity="bottom"-->
+<!--                    android:textStyle="bold"-->
+<!--                    android:textSize="15dp" />-->
+
+<!--            </RelativeLayout>-->
+
+
+
+
+
+
+<!--        </com.google.android.material.card.MaterialCardView>-->
+
+
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:layout_marginTop="30dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:cardBackgroundColor="#663366"-->
+<!--            android:layout_height="150dp"-->
+<!--            android:layout_width="150dp">-->
+
+
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical">-->
+
+
+<!--                <ImageView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="60dp"-->
+<!--                    android:src="@drawable/ic_baseline_data_usage_24"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_marginBottom="30px"-->
+<!--                    />-->
+
+
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Meet huidgeleiding"-->
+<!--                    android:textColor="#fff"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_gravity="bottom"-->
+<!--                    android:paddingBottom="15px"-->
+<!--                    android:textStyle="bold"-->
+<!--                    android:textSize="15dp" />-->
+
+<!--            </LinearLayout>-->
+
+<!--        </com.google.android.material.card.MaterialCardView>-->
+
+<!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:layout_marginTop="30dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            app:cardBackgroundColor="#fff"-->
+<!--            android:layout_height="320px"-->
+<!--            app:strokeWidth=".8dp"-->
+<!--            app:strokeColor="@color/shimmer_grey"-->
+<!--            android:layout_width="320dp">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:orientation="horizontal">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="120dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    app:srcCompat="@drawable/banner"-->
+<!--                    android:scaleType="centerCrop"-->
+<!--                    />-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:padding="16dp">-->
+
+<!--                    &lt;!&ndash; Title, secondary and supporting text &ndash;&gt;-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:textSize="15dp"-->
+<!--                        android:text="Meet Huidgeleiding"-->
+<!--                        android:textAppearance="?attr/textAppearanceHeadline6"-->
+<!--                        />-->
+<!--&lt;!&ndash;                    <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_height="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:layout_marginTop="8dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:textSize="10dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:text="Huidgeleiding meten met een wearable"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:textAppearance="?attr/textAppearanceBody2"&ndash;&gt;-->
+<!--&lt;!&ndash;                        android:textColor="?android:attr/textColorSecondary"&ndash;&gt;-->
+<!--&lt;!&ndash;                        />&ndash;&gt;-->
+<!--                </LinearLayout>-->
+
+<!--            </LinearLayout>-->
+
+<!--        </com.google.android.material.card.MaterialCardView>-->
+
+    </LinearLayout>
+
+
+
+<!--    <com.google.android.material.card.MaterialCardView-->
+<!--        android:paddingTop="200dp"-->
+<!--        android:layout_height="300px"-->
+<!--        android:layout_width="match_parent">-->
+
+<!--    </com.google.android.material.card.MaterialCardView>-->
+
+<!--    <LinearLayout-->
+<!--        android:orientation="vertical"-->
+<!--        android:padding="10dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+<!--        <LinearLayout-->
+<!--            android:clipToPadding="false"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="160dp"-->
+<!--                android:layout_height="190dp"-->
+<!--                android:layout_margin="10dp"-->
+<!--                >-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:gravity="center">-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="64dp"-->
+<!--                        android:layout_height="64dp"-->
+<!--                        android:background="@drawable/circlebackgroundpurple"-->
+<!--                        android:src="@drawable/ic_baseline_data_usage_24"-->
+<!--                        android:padding="10dp"/>-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:text="Meet GSR" />-->
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="#EDEDED"-->
+<!--                        android:layout_margin="10dp"/>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:padding="5dp"-->
+<!--                        android:text="Huidgeleiding meten via een wearable"-->
+<!--                        android:textColor="@android:color/darker_gray"/>-->
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="160dp"-->
+<!--                android:layout_height="190dp"-->
+<!--                android:layout_margin="10dp"-->
+<!--                >-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:orientation="vertical"-->
+<!--                    android:gravity="center">-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="64dp"-->
+<!--                        android:layout_height="64dp"-->
+<!--                        android:background="@drawable/circlebackgroundpurple"-->
+<!--                        android:src="@drawable/ic_baseline_data_usage_24"-->
+<!--                        android:padding="10dp"/>-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:text="Meet GSR" />-->
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="#EDEDED"-->
+<!--                        android:layout_margin="10dp"/>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:padding="5dp"-->
+<!--                        android:text="Huidgeleiding meten via een wearable"-->
+<!--                        android:textColor="@android:color/darker_gray"/>-->
+<!--                </LinearLayout>-->
+
+<!--            </com.google.android.material.card.MaterialCardView>-->
+
+<!--        </LinearLayout>-->
+<!--    </LinearLayout>-->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
