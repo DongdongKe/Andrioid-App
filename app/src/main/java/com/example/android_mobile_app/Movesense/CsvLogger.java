@@ -20,6 +20,7 @@ import com.movesense.mds.internal.connectivity.MovesenseConnectedDevices;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -67,7 +68,7 @@ public class CsvLogger {
         if (isExternalStorageWritable()) {
             File externalDirectory = Environment.getExternalStorageDirectory();
             File appDirectory = new File(externalDirectory, "Movesense");
-            File logFile = new File(appDirectory, createFileNameIso8601(sensorName) + ".csv");
+            File logFile = new File(appDirectory, createFileName(sensorName) + ".csv");
 
             // create app folder
             if (!appDirectory.exists()) {
@@ -95,13 +96,15 @@ public class CsvLogger {
         return null;
     }
 
-    private String createFileNameIso8601(String tag) {
-        // timestamp (ISO 8601) + device serial + data type,
+    private String createFileName(String tag) {
+        // timestamp + device serial + data type,
         StringBuilder sb = new StringBuilder();
 
-        // Get Current Timestamp ISO 8601
-        String currentISO8601Timestamp = String.format("%tFT%<tTZ.%<tL",
-                Calendar.getInstance(TimeZone.getTimeZone("Z")));
+        // Get Current Timestamp in format suitable for file names (i.e. no : or other bad chars)
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Z"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        formatter.setTimeZone(cal.getTimeZone());
+        String currentTimestamp = formatter.format(cal.getTime());
 
         // Get connected device serial
         String deviceName = "Unknown";
@@ -109,7 +112,7 @@ public class CsvLogger {
             deviceName = MovesenseConnectedDevices.getConnectedDevice(0).getSerial();
         }
 
-        sb.append(currentISO8601Timestamp).append("_").
+        sb.append(currentTimestamp).append("_").
                 append(deviceName).append("_")
                 .append(tag);
 
