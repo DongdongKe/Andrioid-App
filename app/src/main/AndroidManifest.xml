@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android_mobile_app">
 
-
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,11 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".Movesense.ShareLogs"></activity>
+
 
         <activity
             android:name=".MovesenseConnectionActivity"
-            android:label="@string/title_activity_movesense">
-        </activity>
+            android:label="@string/title_activity_movesense" />
         <activity
             android:name=".measurement.MeasurementMovesense"
             android:label="@string/title_activity_measurement_movesense">
@@ -87,6 +86,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
 
         <service
             android:name=".services.BluetoothService"

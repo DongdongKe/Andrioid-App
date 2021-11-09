@@ -55,7 +55,6 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test:rules:1.1.0'
 
-
     // Movesense .aar lib
     implementation(name: 'mdslib', version: '1.44.0(1)-release', ext: 'aar')
 

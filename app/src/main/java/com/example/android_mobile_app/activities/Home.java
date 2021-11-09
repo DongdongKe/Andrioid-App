@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.android_mobile_app.BluetoothDeviceSingleton;
 import com.example.android_mobile_app.BuildConfig;
 import com.example.android_mobile_app.Measurements;
+import com.example.android_mobile_app.Movesense.ShareLogs;
 import com.example.android_mobile_app.MovesenseConnectionActivity;
 import com.example.android_mobile_app.R;
 import com.example.android_mobile_app.SelectWearable;
@@ -32,6 +33,10 @@ public class Home extends AppCompatActivity {
         checkBluetoothStatus();
         checkConnectedDevices();
 
+    }
+
+    public void MovesenseSavedData(View view) {
+        startActivity(new Intent(Home.this, ShareLogs.class));
     }
 
     public void MovesenseSelection(View view) {

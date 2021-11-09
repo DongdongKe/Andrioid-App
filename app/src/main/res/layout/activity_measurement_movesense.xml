@@ -159,7 +159,7 @@
         android:id="@+id/btn_record"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:background="@drawable/round_button"
+        android:background="@drawable/start_button"
         android:padding="15dp"
         android:text="Start Recording"
         app:layout_constraintBottom_toBottomOf="parent"

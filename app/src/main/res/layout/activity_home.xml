@@ -220,15 +220,15 @@
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="60dp"
                 android:background="#f7f8fa">
 
                 <TextView
                     android:id="@+id/toolbar_title3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Heart rate variability"
+                    android:layout_marginTop="1dp"
+                    android:text="Heart Rate Variability"
                     android:textColor="#663366"
                     android:textSize="20dp"
                     android:textStyle="normal" />
@@ -265,7 +265,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Wearables"
+                        android:text="Measure HRV"
                         android:textColor="#663366"
                         android:gravity="center"
                         android:layout_gravity="bottom"
@@ -280,7 +280,7 @@
                     android:layout_margin="10dp"
                     android:layout_gravity="center"
                     android:clickable="true"
-                    android:onClick="Settings"
+                    android:onClick="MovesenseSavedData"
                     android:layout_height="140dp"
                     android:layout_width="140dp"
                     app:cardCornerRadius="10dp"
@@ -294,7 +294,7 @@
                         android:layout_gravity="center"
                         app:srcCompat="@drawable/ic_baseline_bar_chart_24"
                         android:scaleType="centerCrop"
-                        app:tint="#fcdd80"
+                        app:tint="#606073"
                         />
 
                     <TextView

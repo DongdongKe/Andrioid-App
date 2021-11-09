@@ -244,6 +244,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                     myState = recordState.stop;
                     timerHandler.removeCallbacks(timerRunnable);
                     b.setText("start");
+                    b.setBackgroundResource(R.drawable.recording_button);
 
                 } else {
                     spinner.setEnabled(false);
@@ -252,6 +253,8 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 
                     b.setText("stop");
                     myState= recordState.running;
+                    b.setBackgroundResource(R.drawable.start_button);
+
                 }
             }
         });
