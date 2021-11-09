@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.android_mobile_app.BluetoothDeviceSingleton;
 import com.example.android_mobile_app.BuildConfig;
 import com.example.android_mobile_app.Measurements;
+import com.example.android_mobile_app.MovesenseConnectionActivity;
 import com.example.android_mobile_app.R;
 import com.example.android_mobile_app.SelectWearable;
 import com.example.android_mobile_app.Settings;
@@ -33,6 +34,9 @@ public class Home extends AppCompatActivity {
 
     }
 
+    public void MovesenseSelection(View view) {
+        startActivity(new Intent(Home.this, MovesenseConnectionActivity.class));
+    }
 
     public void Measurement(View view) {
         startActivity(new Intent(this, SelectWearable.class));

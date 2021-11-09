@@ -59,11 +59,6 @@ dependencies {
     // Movesense .aar lib
     implementation(name: 'mdslib', version: '1.44.0(1)-release', ext: 'aar')
 
-    // ButterKnife
-    implementation 'com.jakewharton:butterknife:10.2.3'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
-
-
     // RxAndroidBle
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'

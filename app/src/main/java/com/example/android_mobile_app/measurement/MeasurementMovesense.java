@@ -50,12 +50,12 @@ import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import butterknife.BindView;
 
 public class MeasurementMovesense extends AppCompatActivity implements BleManager.IBleConnectionMonitor, AdapterView.OnItemSelectedListener {
 
@@ -79,22 +79,15 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     private final String LINEAR_ACCELERATION_PATH = "Meas/Acc/";
     public static final String URI_EVENTLISTENER = "suunto://MDS/EventListener";
 
-    @BindView(R.id.tv_battery) TextView tv_battery;
-    @BindView(R.id.tv_device_name_stress_mesurment) TextView tv_deviceName;
-    @BindView(R.id.ecg_lineChart_stressMesurment) GraphView ecgGraph;
-    @BindView(R.id.tv_heartRate) TextView tv_heartRate;
-    @BindView(R.id.Heart_rate_rssid) TextView tv_test;
-    @BindView(R.id.tv_recording_time) TextView tv_timer;
-    @BindView(R.id.btn_record) Button btnRecord;
-    @BindView(R.id.spinner1) Spinner spinner;
-
-    @BindView(R.id.imv1) ImageView img1;
-    @BindView(R.id.imv2) ImageView img2;
-    @BindView(R.id.imv3) ImageView img3;
-    @BindView(R.id.imv4) ImageView img4;
-    @BindView(R.id.imv5) ImageView img5;
+    TextView tv_battery,tv_deviceName,tv_heartRate,tv_test,tv_timer,btnRecord;
+    ImageView img1,img2,img3,img4,img5;
+    GraphView ecgGraph;
+    Spinner spinner;
 
 
+
+
+    Boolean startProcessing;
     private long start_time =0;
     private final String TAG = MeasurementMovesense.class.getSimpleName();
     private Handler handler = new Handler();
@@ -117,20 +110,23 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     private Timestamp timestamp;
     private Timestamp comparedTimestamp;
     Map.Entry<Timestamp,Integer> newPair;
-    double averageRmssd;
+    Map.Entry<Timestamp,Double> tempLast;
+    double sumOfSquare;
+    double meanSquare;
     double squareRootRmssd;
     String rmssdString;
-    //    public double minTime=0;
+
     //Time window of measurement
     public double selectedTimeWindow =30;
     public double maxTimeMillis =30;
     public double currentTimer;
 
-    //List of pairs value
+
+    //List of raw data
     List<Map.Entry<Timestamp,Integer>> pairList= new ArrayList<>();
     int endIndexRR =0;
-    //Result
-    private List<Double> intervalSquareDifferenceList;
+    //List of 30seconds data
+    private List<Map.Entry<Timestamp,Double>> intervalSquareDifferenceList= new ArrayList<>();
 
     enum recordState{
         idle,
@@ -184,11 +180,25 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
         mCsvLogger=new CsvLogger();
         ecgLogger= new CsvLogger();
         IMULogger= new CsvLogger();
-        tv_deviceName.setText(MovesenseConnectedDevices.getConnectedDevice(0)
-                .getSerial());
+        tv_deviceName = findViewById(R.id.tv_device_name_stress_mesurment);
+        tv_battery=findViewById(R.id.tv_battery);
+        ecgGraph=findViewById(R.id.ecg_lineChart_stressMesurment);
+        tv_heartRate=findViewById(R.id.tv_heartRate);
+        tv_test=findViewById(R.id.Heart_rate_rssid);
+        tv_timer=findViewById(R.id.tv_recording_time);
+        btnRecord=findViewById(R.id.btn_record);
+        spinner=findViewById(R.id.spinner1);
+
+        img1=findViewById(R.id.imv1);
+        img2=findViewById(R.id.imv2);
+        img3=findViewById(R.id.imv3);
+        img4=findViewById(R.id.imv4);
+        img5=findViewById(R.id.imv5);
 
         intervalSquareDifferenceList=new ArrayList<>();
 
+
+        tv_deviceName.setText(MovesenseConnectedDevices.getConnectedDevice(0).getSerial());
 
         //Init empty chart
         mSeriesECG = new LineGraphSeries<>();
@@ -362,12 +372,15 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                 });
     }
 
-    public double sum(List<Double> list) {
+    public double sum(List<Map.Entry<Timestamp,Double>> list) {
         double sum = 0;
 
-        for (double i : list)
-            sum = sum + i;
+        for (Map.Entry<Timestamp,Double> i : list)
+            try {
+                sum = sum + i.getValue();
+            }catch(Exception e){
 
+            }
         return sum;
     }
 
@@ -413,53 +426,67 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                                     unSubscribe();
                                     break;
                                 case running:
-                                    //Post-Processing data
+                                    //New rr
                                     timestamp=new Timestamp(System.currentTimeMillis());
+                                    newPair=new AbstractMap.SimpleEntry<>(timestamp,rr);
+                                    //Post-Processing data
                                     try {
                                         currentTimer = getSeconds(tv_timer.getText().toString());
                                     } catch (Exception e) {
 
                                     }
-                                    newPair=new AbstractMap.SimpleEntry<>(timestamp,rr);
-                                    if (currentTimer> selectedTimeWindow){
+                                    startProcessing= currentTimer> selectedTimeWindow;
+                                    //Add a few intervals without filtering out the interval
+                                    if (startProcessing){
                                         comparedTimestamp = new Timestamp((long) (timestamp.getTime() - maxTimeMillis));
-                                        pairList.removeIf(n -> n.getKey().before(comparedTimestamp));
-//                                        for (Map.Entry<Timestamp, Integer> rawRR : pairList) {
-//                                            if (rawRR.getKey().before(comparedTimestamp)){
-//                                                pairList.remove(rawRR);
-//                                            }else {
-//                                                break;
-//                                            }
-//                                        }
+                                        //Lambada
+                                        //pairList.removeIf(n -> n.getKey().before(comparedTimestamp));
+                                        Iterator<Map.Entry<Timestamp,Double>> iterator= intervalSquareDifferenceList.iterator();
+                                        while (iterator.hasNext()){
+                                            Map.Entry<Timestamp,Double> t= iterator.next();
+                                            Timestamp s= t.getKey();
+                                            if (t.getKey().before(comparedTimestamp)){
+                                                tempLast= t;
+                                                iterator.remove();
+                                            }else{
+                                                if (tempLast!=null){
+                                                    intervalSquareDifferenceList.add(0,tempLast);
+                                                }
+                                                break;
+                                            }
+                                        }
                                     }
 
-
-                                    //timestampList.add(tv_timer.getText().toString());
-                                    //Add a few intervals without filtering out the interval
-                                    if (pairList.size() <5) {
+                                    if (pairList.size() <2) {
                                         pairList.add(newPair);
                                     }
                                     else {
                                         endIndexRR = pairList.get(pairList.size()-1).getValue();
-                                        if (endIndexRR > (rr*0.8) && endIndexRR <(rr*1.2)) {
-                                            pairList.add(newPair);
-                                            double last=pairList.get(pairList.size()-1).getValue();
-                                            double secondLast=pairList.get(pairList.size()-2).getValue();
-                                            double t= Math.pow(secondLast-last,2);
-                                            intervalSquareDifferenceList.add(t);
-                                        }
+//                                        if (endIndexRR > (rr*0.8) && endIndexRR <(rr*1.2)) {
+                                        pairList.add(newPair);
+                                        double last=pairList.get(pairList.size()-1).getValue();
+                                        double secondLast=pairList.get(pairList.size()-2).getValue();
+                                        double t= Math.pow(secondLast-last,2);
+                                        intervalSquareDifferenceList.add(new AbstractMap.SimpleEntry<>(timestamp,t));
+//                                        }
                                     }
-                                    if (intervalSquareDifferenceList.size()!=0){
-                                        averageRmssd = sum(intervalSquareDifferenceList)/intervalSquareDifferenceList.size();
-                                        squareRootRmssd=  Math.sqrt(averageRmssd);
-                                        rmssdString= Double.toString(Math.round(squareRootRmssd*100.0)/100.0);
+
+                                    //Calculation part
+                                    sumOfSquare = sum(intervalSquareDifferenceList);
+                                    meanSquare = sumOfSquare/intervalSquareDifferenceList.size();
+                                    squareRootRmssd=  Math.sqrt(meanSquare);
+                                    rmssdString= Double.toString(Math.round(squareRootRmssd*100.0)/100.0);
+                                    if (!startProcessing){
+                                        rmssdString ="waiting";
                                     }
-                                    tv_test.setText("RMSSD: "+rmssdString);
+
+
+                                    tv_test.setText("HRV(RMSSD): "+rmssdString);
                                     isLogSaved=false;
                                     //Saving data
                                     mCsvLogger.appendHeader("Timestamp,Heart,interval,RMSSD,Event,StressAmount");
                                     mCsvLogger.appendLine(String.format(Locale.getDefault(),
-                                            "%s,%.0f,%d,%s,%s,%d",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,eventText,stress_amount));
+                                            "%s,%.0f,%d,%s,%s,%s",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,sumOfSquare,meanSquare));
                                     break;
                                 default:
                                     break;

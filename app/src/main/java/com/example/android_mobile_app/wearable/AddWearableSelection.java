@@ -14,27 +14,16 @@ import com.example.android_mobile_app.measurement.MeasurementEmpatica;
 import com.example.android_mobile_app.measurement.MeasurementMovesense;
 import com.google.android.material.card.MaterialCardView;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 public class AddWearableSelection extends AppCompatActivity {
-    @BindView(R.id.card3)
+
     MaterialCardView card3;
-
-    @BindView(R.id.card)
     MaterialCardView card;
-
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ButterKnife.bind(this);
         setContentView(R.layout.activity_add_wearable_selection);
+        card=findViewById(R.id.card);
+        card3= findViewById(R.id.card3);
     }
 
     public void addShimmer(View view) {

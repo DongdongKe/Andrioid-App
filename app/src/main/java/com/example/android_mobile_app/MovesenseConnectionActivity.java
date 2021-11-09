@@ -31,6 +31,7 @@ import com.example.android_mobile_app.Movesense.MovesensePresenter;
 import com.example.android_mobile_app.Movesense.RxBle;
 import com.example.android_mobile_app.Movesense.RxBleDeviceWrapper;
 import com.example.android_mobile_app.Movesense.ThrowableToastingAction;
+import com.example.android_mobile_app.measurement.MeasurementMovesense;
 import com.example.android_mobile_app.model.MdsConnectedDevice;
 import com.example.android_mobile_app.model.MdsDeviceInfoNewSw;
 import com.example.android_mobile_app.model.MdsDeviceInfoOldSw;
@@ -43,20 +44,14 @@ import com.polidea.rxandroidble2.scan.ScanFilter;
 import com.polidea.rxandroidble2.scan.ScanSettings;
 
 import java.util.ArrayList;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 
 public class MovesenseConnectionActivity extends AppCompatActivity implements MovesenseContract.View, View.OnClickListener {
 
-    @BindView(R.id.movesense_recyclerView)
     RecyclerView mMovesenseRecyclerView;
-    @BindView(R.id.movesense_infoTv)
     TextView mMovesenseInfoTv;
-    @BindView(R.id.movesense_progressBar)
     ProgressBar mMovesenseProgressBar;
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 98;
@@ -73,11 +68,14 @@ public class MovesenseConnectionActivity extends AppCompatActivity implements Mo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movesenseconnection);
-        ButterKnife.bind(this);
+        mMovesenseRecyclerView = findViewById(R.id.movesense_recyclerView);
+        mMovesenseInfoTv= findViewById(R.id.movesense_infoTv);
+        mMovesenseProgressBar = findViewById(R.id.movesense_progressBar);
 
-//        if (getSupportActionBar() != null) {
-//        }
-//        getSupportActionBar().setTitle("Movesense Connection");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Movesense Connection");
+            getActionBar().setTitle("Movesense Connection");
+        }
 
 
         scanningSubscriptions = new CompositeDisposable();
@@ -304,7 +302,7 @@ public class MovesenseConnectionActivity extends AppCompatActivity implements Mo
                             connectedDevicesSubscriptions.dispose();
 
                             // We have a new SdsDevice
-                            startActivity(new Intent(MovesenseConnectionActivity.this, com.example.android_mobile_app.measurement.MeasurementMovesense.class));
+                            startActivity(new Intent(MovesenseConnectionActivity.this, MeasurementMovesense.class));
                         } else {
                             Log.e(TAG, "DISCONNECT");
                         }

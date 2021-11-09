@@ -16,40 +16,44 @@
         android:orientation="vertical">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:layout_height="140dp"
             android:layout_width="match_parent"
-            android:background="#f7f8fa"
-            >
+            android:layout_height="120dp"
+            android:background="#f7f8fa">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="left">
+                android:gravity="left"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:text="Skin Conductance App"
+                    android:layout_marginTop="20dp"
+                    android:text="Measurement "
                     android:textColor="#663366"
-                    android:textSize="20dp"
+                    android:textSize="30dp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/toolbar_title2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:text="Main Menu"
+                    android:layout_marginTop="20dp"
+                    android:text="Skin Conductance"
                     android:textColor="#663366"
                     android:textSize="20dp"
                     android:textStyle="normal" />
 
+
             </LinearLayout>
 
         </com.google.android.material.appbar.MaterialToolbar>
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -214,7 +218,101 @@
 
             </LinearLayout>
 
+            <com.google.android.material.appbar.MaterialToolbar
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="#f7f8fa">
+
+                <TextView
+                    android:id="@+id/toolbar_title3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Heart rate variability"
+                    android:textColor="#663366"
+                    android:textSize="20dp"
+                    android:textStyle="normal" />
+            </com.google.android.material.appbar.MaterialToolbar>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="2"
+                >
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="MovesenseSelection"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/hrv"
+                        android:scaleType="centerCrop"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Wearables"
+                        android:textColor="#663366"
+                        android:gravity="center"
+                        android:layout_gravity="bottom"
+                        android:textStyle="bold"
+                        android:paddingBottom="25dp"
+                        android:textSize="13dp" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_marginTop="30dp"
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:onClick="Settings"
+                    android:layout_height="140dp"
+                    android:layout_width="140dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="#fff"
+                    >
+
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_baseline_bar_chart_24"
+                        android:scaleType="centerCrop"
+                        app:tint="#fcdd80"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:gravity="center"
+                        android:paddingBottom="25dp"
+                        android:text="Saved Data"
+                        android:textColor="#663366"
+                        android:textSize="13dp"
+                        android:textStyle="bold" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
         </LinearLayout>
+    </ScrollView>
 
 
 
@@ -232,7 +330,8 @@
 
 
 
-<!--        <com.google.android.material.card.MaterialCardView-->
+
+        <!--        <com.google.android.material.card.MaterialCardView-->
 <!--            android:layout_marginTop="30dp"-->
 <!--            android:layout_gravity="center"-->
 <!--            app:cardBackgroundColor="#663366"-->
