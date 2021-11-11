@@ -18,7 +18,13 @@ import com.example.android_mobile_app.MovesenseConnectionActivity;
 import com.example.android_mobile_app.R;
 import com.example.android_mobile_app.SelectWearable;
 import com.example.android_mobile_app.Settings;
+import com.example.android_mobile_app.SignalDetector;
 import com.example.android_mobile_app.WearablesMenu;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

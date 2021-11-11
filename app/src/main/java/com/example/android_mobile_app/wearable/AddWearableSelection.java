@@ -16,14 +16,12 @@ import com.google.android.material.card.MaterialCardView;
 
 public class AddWearableSelection extends AppCompatActivity {
 
-    MaterialCardView card3;
     MaterialCardView card;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_wearable_selection);
         card=findViewById(R.id.card);
-        card3= findViewById(R.id.card3);
     }
 
     public void addShimmer(View view) {
@@ -33,17 +31,4 @@ public class AddWearableSelection extends AppCompatActivity {
     public void addEmpatica(View view) {
         startActivity(new Intent(this, MeasurementEmpatica.class));
     }
-
-    public void addMovesense(View view) {
-        startActivity(new Intent(this, MovesenseConnectionActivity.class));
-    }
-
-//    @OnClick({R.id.card3, R.id.card})
-//    public void onViewClicked(View view) {
-//        switch (view.getId()) {
-//            case R.id.card3:
-//                startActivity(new Intent(AddWearableSelection.this, MovesenseConnectionActivity.class));
-//                break;
-//        }
-//    }
 }

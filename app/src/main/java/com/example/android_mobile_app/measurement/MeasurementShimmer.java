@@ -1,6 +1,7 @@
 package com.example.android_mobile_app.measurement;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -26,6 +27,8 @@ import androidx.room.Index;
 
 import com.example.android_mobile_app.MeasurementCompleted;
 import com.example.android_mobile_app.R;
+import com.example.android_mobile_app.ShimmerBluetoothDialogT;
+import com.example.android_mobile_app.SignalDetector;
 import com.example.android_mobile_app.domain.Event;
 import com.example.android_mobile_app.domain.Wearable;
 import com.example.android_mobile_app.domain.Measurement;
@@ -45,6 +48,7 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 import com.shimmerresearch.android.Shimmer;
+import com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog;
 import com.shimmerresearch.bluetooth.ShimmerBluetooth;
 import com.shimmerresearch.driver.CallbackObject;
 import com.shimmerresearch.driver.Configuration;
@@ -56,8 +60,12 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog.EXTRA_DEVICE_ADDRESS;
+
 
 import tech.gusavila92.websocketclient.WebSocketClient;
 
@@ -72,12 +80,19 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
     private LineGraphSeries<DataPoint> signalGraphSeries, SCLGraphSeries;
 
-    private PointsGraphSeries<DataPoint> SCRGraphSeries, MarkGraphSeries, EventGraphSeries;
+    private PointsGraphSeries<DataPoint> SCRGraphSeries, MarkGraphSeries, EventGraphSeries,test;
 
     private List<SCR> SCRvalues = new ArrayList<SCR>();
+    private List<Double> testList = new ArrayList<>();
 
     private List<SCR> finalSCRvalues = new ArrayList<SCR>();
     //private int highestIndex = 0;
+
+    private final String TAG = MeasurementShimmer.class.getSimpleName();
+
+    public static final String libraryDefault = "default";
+
+
 
     private Measurement measurement;
 
@@ -129,6 +144,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private TextView SCRamount;
     private TextView SCL;
     private TextView SCLAverage;
+
+    SignalDetector signalDetector = new SignalDetector();
+    int lag = 50;
+    double threshold = 4;
+    double influence = 0;
 
 
     @Override
@@ -187,7 +207,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         countdownText = findViewById(R.id.CountdownTimer);
 
 
-        //Button listener
+        //region Emotion Button listener
         happyButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -232,6 +252,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 currentEmotion.setBackgroundDrawable(getResources().getDrawable(R.drawable.iv_p5));
             }
         });
+        //endregion
 
         startEvent.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -307,6 +328,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         SCRGraphSeries.setColor(Color.RED);
         SCRGraphSeries.setSize(5);
 
+        //test
+        test= new PointsGraphSeries<>();
+        test.setColor(Color.RED);
+        test.setSize(5);
+
         //Mark(User Feedback Point Graph)
         MarkGraphSeries = new PointsGraphSeries<>();
         MarkGraphSeries.setColor(Color.GREEN);
@@ -316,13 +342,15 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         EventGraphSeries.setColor(Color.YELLOW);
         EventGraphSeries.setSize(10);
 
-        GraphView graph = (GraphView) findViewById(R.id.dataGraph);
+        GraphView graph = findViewById(R.id.dataGraph);
 
         graph.addSeries(signalGraphSeries);
         graph.addSeries(SCLGraphSeries);
         graph.addSeries(SCRGraphSeries);
         graph.addSeries(MarkGraphSeries);
         graph.addSeries(EventGraphSeries);
+        //test
+        graph.addSeries(test);
 
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(0);
@@ -364,8 +392,30 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         dialog.show();
     }
 
+    /**
+     *Get result from ShimmerBlEDialog
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 2) {
+            if (resultCode == Activity.RESULT_OK) {
+                //Get the Bluetooth mac address of the selected device:
+                String macAdd = data.getStringExtra(EXTRA_DEVICE_ADDRESS);
+                shimmer = new Shimmer(mHandler);
+                shimmer.connect(macAdd, "default");
+                startMeasurementButton.setEnabled(true);
+                //Connect to the selected device
+            }
+            if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
+                Log.e(TAG, String.valueOf(shimmer.getState()));
+                Toast.makeText(this, "Error,please turn on Shimmer", Toast.LENGTH_SHORT).show();
+                startMeasurementButton.setEnabled(false);
+                connectWithShimmerButton.setEnabled(true);
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -421,7 +471,8 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 try{
                     if(s.contains("indexWeb")==false){
                         responseDTO = gson.fromJson(s, ResponseDTO.class);
-
+                        measurement.getMeasurementValues().get(responseDTO.getIndex()-1).setSCL(responseDTO.getSCL());
+                        measurement.getMeasurementValues().get(responseDTO.getIndex()-1).setIndex(responseDTO.getIndex());
                         runOnUiThread(new Runnable()
                         {
                             @Override
@@ -430,11 +481,10 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                 Log.e("index", String.valueOf(responseDTO.getIndex()));
 
                                 SCLGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, responseDTO.getSCL()), true, 200);
-                                measurement.getMeasurementValues().get(responseDTO.getIndex() - 1).setSCL(responseDTO.getSCL());
+//                                measurement.getMeasurementValues().get(responseDTO.getIndex() - 1).setSCL(responseDTO.getSCL());
 
                                 //Collect Everytime SCL value to SCLs List
                                 SCLs.add(responseDTO.getSCL());
-
                                 sclAverage = getAverageSCL(SCLs);
 
 //                            else{
@@ -448,7 +498,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                 SCL.setText("SCL: "+stringScl);
                                 SCLAverage.setText("Aver: "+stringSclAverage);
 
-                                Log.e("SCL added ", measurement.getMeasurementValues().get(index - 1).toString());
+//                                Log.e("SCL added ", measurement.getMeasurementValues().get(index - 1).toString());
 
 //                        if(responseDTO.getSCR() > 0.0){
 //                            double y = measurement.getMeasurementValues().get(index - 1).getGSR();
@@ -482,7 +532,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                             //show SCR value on the graph
                                             //SCRGraphSeries.appendData(new DataPoint(scr.getIndex()-1,scr.getValue()),true, 200);
                                             SCRvalues.add(scr);
-
                                             measurement.getMeasurementValues().get(scr.getIndex() - 1).setSCR(scr.getValue());
                                         }
                                     }
@@ -572,6 +621,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
                         measurement.getMeasurementValues().add(measurementValue);
 
+
                         Log.e("GSR", String.valueOf(index));
                         com.example.android_mobile_app.dto.MeasurementDTO measurementDTO = new com.example.android_mobile_app.dto.MeasurementDTO();
 
@@ -587,6 +637,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                         String json = gson.toJson(measurementDTO);
 
                         webSocketClient.send(json);
+                        //add
+//                        testList.add(index,GSR);
+//                        List<Integer> resultsMap = signalDetector.analyzeDataForSignals(testList, lag, threshold, influence);
 
                         runOnUiThread(new Runnable()
                         {
@@ -653,9 +706,42 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         }
     };
 
+    public void setConnection(View view) {
+        if(!shimmer.isConnected() && shimmer.isReadyToConnect()){
+             //shimmer.connect(wearable.getAddress(),libraryDefault);
+            connectWithShimmerButton.setEnabled(false);
+            Intent intent = new Intent(getApplicationContext(), ShimmerBluetoothDialogT.class);
+            startActivityForResult(intent, ShimmerBluetoothDialogT.REQUEST_CONNECT_SHIMMER);
+            Log.e("Shimmer", "Connected Shimmer");
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        //Disconnect the Shimmer device when this activity is stopped
+        if(shimmer != null) {
+            if(shimmer.isSDLogging()) {
+                shimmer.stopSDLogging();
+                Log.d(TAG, "Stopped Shimmer Logging");
+            }
+            else if(shimmer.isStreaming()) {
+                shimmer.stopStreaming();
+                Log.d(TAG, "Stopped Shimmer Streaming");
+            }
+            else {
+                shimmer.stopStreamingAndLogging();
+                Log.d(TAG, "Stopped Shimmer Streaming and Logging");
+            }
+        }
+        shimmer.disconnect();
+        Log.i(TAG, "Shimmer DISCONNECTED");
+        super.onStop();
+    }
+
     public void startStreaming(View view) {
 
         Log.e("Shimmer", "Streaming started");
+        shimmer.getState();
 
         shimmer.setSamplingRateShimmer(6.0);
 
@@ -672,16 +758,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         stopMeasurementButton.setVisibility(View.VISIBLE);
     }
 
-    public void setConnection(View view) {
-        if(!shimmer.isConnected()){
-            shimmer.connect(wearable.getAddress(),"default");
 
-            Log.e("Shimmer", "Connected Shimmer");
-            Toast.makeText(getApplicationContext(),"Please wait until the blue light showing on your shimmer", Toast.LENGTH_SHORT).show();
-            startMeasurementButton.setEnabled(true);
-            connectWithShimmerButton.setEnabled(false);
-        }
-    }
 
     public void stopStreaming(View view) {
         if (shimmer.isStreaming()){
@@ -755,4 +832,5 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
         countdownText.setText(timeLeftText);
     }
+
 }

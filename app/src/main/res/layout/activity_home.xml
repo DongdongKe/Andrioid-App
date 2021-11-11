@@ -17,7 +17,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="110dp"
             android:background="#f7f8fa">
 
             <LinearLayout
@@ -220,7 +220,7 @@
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="30dp"
                 android:background="#f7f8fa">
 
                 <TextView
@@ -238,6 +238,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:weightSum="2"
@@ -276,7 +277,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="10dp"
                     android:layout_margin="10dp"
                     android:layout_gravity="center"
                     android:clickable="true"

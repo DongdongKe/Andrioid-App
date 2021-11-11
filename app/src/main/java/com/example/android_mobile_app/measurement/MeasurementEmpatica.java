@@ -195,7 +195,7 @@ public class MeasurementEmpatica extends AppCompatActivity implements EmpaDataDe
         countdownText = findViewById(R.id.CountdownTimerEmpatica);
 
 
-        // Emotion button click events
+        //region Emotion button click events
         happyButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -239,6 +239,7 @@ public class MeasurementEmpatica extends AppCompatActivity implements EmpaDataDe
                 currentEmotion.setBackgroundDrawable(getResources().getDrawable(R.drawable.iv_p5));
             }
         });
+        //endregion
 
         //Event start click listener
         startEvent.setOnClickListener(new View.OnClickListener() {

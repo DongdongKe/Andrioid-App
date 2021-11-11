@@ -32,16 +32,6 @@ public class ShareLogs extends AppCompatActivity {
     TextView resultTextView;
     ListView logsFileListView;
 
-//    private GoogleAccountCredential mCredential;
-//    private static final String[] SCOPES = {DriveScopes.DRIVE};
-//    private GoogleApiClient mGoogleApiClient;
-//    private static final String PREF_ACCOUNT_NAME = "accountName";
-//    private static final int REQUEST_ACCOUNT_PICKER = 1000;
-//    private static final int REQUEST_AUTHORIZATION = 1001;
-//    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-//    private static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-//    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 1005;
-
     private final String LOG_TAG = ShareLogs.class.getSimpleName();
 
     private List<File> logsFileList = new ArrayList<>();
@@ -83,7 +73,7 @@ public class ShareLogs extends AppCompatActivity {
                                                     intent.setDataAndType(uri, getMimeType(clickedFile.getName()));
                                                     startActivity(intent);
                                                 }catch (Exception ex){
-                                                    Toast.makeText(getApplicationContext(), "Please have downloaded file editor, e.g. Excel", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(getApplicationContext(), "Something went wrong! Please have downloaded file editor, e.g. Excel", Toast.LENGTH_LONG).show();
                                                 }
                                                 break;
                                             case 1:
