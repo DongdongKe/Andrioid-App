@@ -1,6 +1,9 @@
 package com.example.android_mobile_app.measurement;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.os.Handler;
 import android.util.Log;
@@ -244,17 +248,15 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                     myState = recordState.stop;
                     timerHandler.removeCallbacks(timerRunnable);
                     b.setText("start");
-                    b.setBackgroundResource(R.drawable.recording_button);
+                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.buttonColor));
 
                 } else {
                     spinner.setEnabled(false);
                     start_time = System.currentTimeMillis();
                     timerHandler.postDelayed(timerRunnable, 0);
-
                     b.setText("stop");
                     myState= recordState.running;
-                    b.setBackgroundResource(R.drawable.start_button);
-
+                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.red));
                 }
             }
         });
@@ -327,23 +329,34 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 
         img1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {stress_amount = 1; }
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Happy Choosed", Toast.LENGTH_SHORT).show();
+                stress_amount = 1;
+            }
         });
         img2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {stress_amount = 2; }
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Satisfied Choosed", Toast.LENGTH_SHORT).show();
+                stress_amount = 2; }
         });
         img3.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {stress_amount = 3; }
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Plain Choosed", Toast.LENGTH_SHORT).show();
+                stress_amount = 3; }
         });
         img4.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {stress_amount = 4; }
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Sad Choosed", Toast.LENGTH_SHORT).show();
+                stress_amount = 4; }
         });
         img5.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {stress_amount = 5; }
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Angry Choosed", Toast.LENGTH_SHORT).show();
+                stress_amount = 5; }
         });
     }
 

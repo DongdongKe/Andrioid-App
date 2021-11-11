@@ -344,6 +344,34 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/shimmerConnectingLoader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="270dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/dataGraph"
+                    app:layout_constraintStart_toStartOf="@+id/dataGraph"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:indeterminateTint="#663366"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+
+
+
+
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -15,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,6 +83,8 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private LineGraphSeries<DataPoint> signalGraphSeries, SCLGraphSeries;
 
     private PointsGraphSeries<DataPoint> SCRGraphSeries, MarkGraphSeries, EventGraphSeries,test;
+    private LinearLayout shimmerConnectingLinearLayout;
+
 
     private List<SCR> SCRvalues = new ArrayList<SCR>();
     private List<Double> testList = new ArrayList<>();
@@ -159,6 +163,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         connectWithShimmerButton = findViewById(R.id.ConnectWithShimmer);
         startMeasurementButton = findViewById(R.id.startMeasurement);
         stopMeasurementButton = findViewById(R.id.stopMeasurement);
+        shimmerConnectingLinearLayout=findViewById(R.id.shimmerConnectedLinearLayout);
 
         wearable = (Wearable) getIntent().getSerializableExtra("wearable");
 
@@ -186,7 +191,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         measurementID = UUID.randomUUID().toString();
         measurement.setID(measurementID);
         measurement.setName("Meting 1");
-        measurement.setWearable(wearable.getName());
+        //measurement.setWearable(wearable.getName());
 
         chosenEvent = findViewById(R.id.ChosenEvent);
 
@@ -392,6 +397,17 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         dialog.show();
     }
 
+
+    public void setConnection(View view) {
+        if(!shimmer.isConnected()){
+            //shimmer.connect(wearable.getAddress(),libraryDefault);
+            connectWithShimmerButton.setEnabled(false);
+            Intent intent = new Intent(getApplicationContext(), ShimmerBluetoothDialogT.class);
+            startActivityForResult(intent, ShimmerBluetoothDialogT.REQUEST_CONNECT_SHIMMER);
+            Log.e("Shimmer", "Connected Shimmer");
+        }
+    }
+
     /**
      *Get result from ShimmerBlEDialog
      * @param requestCode
@@ -405,15 +421,21 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 //Get the Bluetooth mac address of the selected device:
                 String macAdd = data.getStringExtra(EXTRA_DEVICE_ADDRESS);
                 shimmer = new Shimmer(mHandler);
+                //Connect to the selected device
                 shimmer.connect(macAdd, "default");
                 startMeasurementButton.setEnabled(true);
-                //Connect to the selected device
-            }
-            if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
+                while (shimmer.getState()== ShimmerBluetooth.BT_STATE.CONNECTING){
+                    //Waiting for connecting
+                }
                 Log.e(TAG, String.valueOf(shimmer.getState()));
-                Toast.makeText(this, "Error,please turn on Shimmer", Toast.LENGTH_SHORT).show();
-                startMeasurementButton.setEnabled(false);
-                connectWithShimmerButton.setEnabled(true);
+                if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
+                    Log.e(TAG, String.valueOf(shimmer.getState()));
+                    Toast.makeText(this, "Can't connect,please try it again", Toast.LENGTH_SHORT).show();
+                    startMeasurementButton.setEnabled(false);
+                    connectWithShimmerButton.setEnabled(true);
+                }else {
+                    Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -706,15 +728,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         }
     };
 
-    public void setConnection(View view) {
-        if(!shimmer.isConnected() && shimmer.isReadyToConnect()){
-             //shimmer.connect(wearable.getAddress(),libraryDefault);
-            connectWithShimmerButton.setEnabled(false);
-            Intent intent = new Intent(getApplicationContext(), ShimmerBluetoothDialogT.class);
-            startActivityForResult(intent, ShimmerBluetoothDialogT.REQUEST_CONNECT_SHIMMER);
-            Log.e("Shimmer", "Connected Shimmer");
-        }
-    }
 
     @Override
     protected void onStop() {

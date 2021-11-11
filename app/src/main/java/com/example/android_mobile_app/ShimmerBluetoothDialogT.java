@@ -17,6 +17,7 @@ package com.example.android_mobile_app;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -185,8 +186,9 @@ public class ShimmerBluetoothDialogT extends Activity {
             Intent intent = new Intent();
             intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
 
-            Toast.makeText(getApplicationContext(),"Device Selected " +  "-> "+ address, Toast.LENGTH_SHORT).show();
-            setResult(Activity.RESULT_OK, intent);              // Set result and finish this Activity
+            Toast.makeText(getApplicationContext(),"Please wait for device: " +  "-> "+ address, Toast.LENGTH_SHORT).show();
+            setResult(Activity.RESULT_OK, intent);
+            // Set result and finish this Activity
             finish();
         }
 

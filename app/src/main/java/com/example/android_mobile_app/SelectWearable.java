@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.example.android_mobile_app.measurement.MeasurementEmpatica;
 import com.example.android_mobile_app.measurement.MeasurementMovesense;
+import com.example.android_mobile_app.measurement.MeasurementShimmer;
 
 public class SelectWearable extends AppCompatActivity {
 
@@ -18,7 +19,7 @@ public class SelectWearable extends AppCompatActivity {
     }
 
     public void ShimmerSelection(View view) {
-        startActivity(new Intent(this, ShimmerSelection.class));
+        startActivity(new Intent(this, MeasurementShimmer.class));
     }
 
     public void EmpaticaSelection(View view) {

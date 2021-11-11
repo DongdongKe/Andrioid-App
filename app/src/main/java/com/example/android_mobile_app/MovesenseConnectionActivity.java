@@ -14,10 +14,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.SupportActionModeWrapper;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,8 +43,6 @@ import com.movesense.mds.internal.connectivity.MovesenseConnectedDevices;
 import com.movesense.mds.internal.connectivity.MovesenseDevice;
 import com.polidea.rxandroidble2.RxBleDevice;
 import com.polidea.rxandroidble2.RxBleScanResult;
-import com.polidea.rxandroidble2.scan.ScanFilter;
-import com.polidea.rxandroidble2.scan.ScanSettings;
 
 import java.util.ArrayList;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -67,12 +68,16 @@ public class MovesenseConnectionActivity extends AppCompatActivity implements Mo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movesenseconnection);
+        setContentView(R.layout.activity_movesense_connection);
         mMovesenseRecyclerView = findViewById(R.id.movesense_recyclerView);
         mMovesenseInfoTv= findViewById(R.id.movesense_infoTv);
         mMovesenseProgressBar = findViewById(R.id.movesense_progressBar);
 
+
+
         if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            getActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle("Movesense Connection");
             getActionBar().setTitle("Movesense Connection");
         }

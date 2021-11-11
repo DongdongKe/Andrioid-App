@@ -8,40 +8,57 @@
     tools:context=".measurement.MeasurementMovesense">
 
 
-    <Button
-        android:id="@+id/btn_event1"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Event1"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
-        app:layout_constraintEnd_toStartOf="@+id/btn_event2"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintBottom_toBottomOf="@id/stressLinearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_record"
-        app:layout_constraintVertical_bias="0.50" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_event2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Event2"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+        app:layout_constraintBottom_toTopOf="@+id/stressLinearLayout"
         app:layout_constraintEnd_toStartOf="@+id/notes_btn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_event1"
         app:layout_constraintTop_toBottomOf="@+id/btn_record"
-        app:layout_constraintVertical_bias="0.50" />
+        app:layout_constraintVertical_bias="0.33"
+        app:backgroundTint="@color/buttonColor"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_event1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event1"
+        app:layout_constraintBottom_toTopOf="@+id/stressLinearLayout"
+        app:layout_constraintEnd_toStartOf="@+id/btn_event2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_record"
+        app:layout_constraintVertical_bias="0.33"
+        app:backgroundTint="@color/buttonColor" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/notes_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Event3"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+        app:layout_constraintBottom_toTopOf="@+id/stressLinearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_event2"
-        app:layout_constraintTop_toBottomOf="@+id/btn_record" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_record"
+        app:layout_constraintVertical_bias="0.33"
+        app:backgroundTint="@color/buttonColor"/>
+
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -56,7 +73,7 @@
             android:id="@+id/imageView_connected_blutooth"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="0dp"
             android:adjustViewBounds="false"
             android:cropToPadding="false"
             android:scaleType="fitEnd"
@@ -76,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="70dp"
             android:layout_marginRight="1dp"
-            android:background="#4CAF50"
+            android:background="@color/buttonColor"
             android:text="@string/Sensor_Number" />
 
         <View
@@ -90,7 +107,7 @@
             android:id="@+id/imageView_batterylevel"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="0dp"
             android:layout_toLeftOf="@id/tv_battery"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
@@ -102,7 +119,8 @@
             android:id="@+id/tv_battery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="40dp" />
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="2dp"/>
 
 
     </LinearLayout>
@@ -146,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="RMSSD Seconds:" />
+            android:text="Time Window Seconds:" />
 
         <Spinner
             android:id="@+id/spinner1"
@@ -155,19 +173,21 @@
 
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_record"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:background="@drawable/start_button"
         android:padding="15dp"
         android:text="Start Recording"
+        app:backgroundTint="#3DDC84"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ecg_lineChart_stressMesurment"
-        app:layout_constraintVertical_bias="0.258" />
+        app:layout_constraintVertical_bias="0.258"
+        app:strokeColor="#CDDC39" />
 
     <TextView
         android:id="@+id/tv_recording_time"
@@ -189,18 +209,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Add Amount of stress:"
-            android:textAlignment="center"
-            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/stressLinearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/colorText"
@@ -216,8 +228,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
             android:contentDescription="Perfect"
             android:visibility="visible"
             app:srcCompat="@drawable/face_green" />
@@ -227,8 +239,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
             android:contentDescription="Good"
             android:visibility="visible"
             app:srcCompat="@drawable/face_light_green" />
@@ -238,8 +250,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
             android:contentDescription="So-So"
             android:visibility="visible"
             app:srcCompat="@drawable/face_yellow" />
@@ -249,8 +261,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
             android:contentDescription="Stressed"
             android:visibility="visible"
             app:srcCompat="@drawable/face_orange" />
@@ -260,8 +272,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
             android:contentDescription="So Stressed"
             android:visibility="visible"
             app:srcCompat="@drawable/face_angry" />

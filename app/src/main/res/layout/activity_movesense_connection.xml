@@ -17,7 +17,7 @@
         android:gravity="center"
         android:padding="10dp"
         android:text="Search Movesense devices by clicking button on the bottom"
-        android:textColor="@color/colorText"
+        android:textColor="#3700B3"
         android:textSize="18sp"/>
 
     <ProgressBar
