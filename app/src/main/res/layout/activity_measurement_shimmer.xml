@@ -54,14 +54,14 @@
                 android:textSize="12dp"
                 android:visibility="invisible" />
 
-            <Button
-                android:id="@+id/EventButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:onClick="showEvent"
-                android:text="Event"
-                android:visibility="gone" />
+<!--            <Button-->
+<!--                android:id="@+id/EventButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginLeft="20dp"-->
+<!--                android:onClick="showEvent"-->
+<!--                android:text="Event"-->
+<!--                android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/ShimmerStatus"
@@ -203,10 +203,13 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tv_editEvent"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
                             android:gravity="center"
-                            android:text=" Event Card" />
+                            android:clickable="true"
+                            android:onClick="showEditEvent"
+                            android:text="Edit Event" />
 
                         <TextView
                             android:id="@+id/ChosenEvent"

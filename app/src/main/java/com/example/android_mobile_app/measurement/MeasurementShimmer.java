@@ -1,10 +1,9 @@
 package com.example.android_mobile_app.measurement;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -12,12 +11,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.room.Index;
 
 import com.example.android_mobile_app.MeasurementCompleted;
 import com.example.android_mobile_app.R;
@@ -50,7 +49,6 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 import com.shimmerresearch.android.Shimmer;
-import com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog;
 import com.shimmerresearch.bluetooth.ShimmerBluetooth;
 import com.shimmerresearch.driver.CallbackObject;
 import com.shimmerresearch.driver.Configuration;
@@ -62,7 +60,6 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,7 +80,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private LineGraphSeries<DataPoint> signalGraphSeries, SCLGraphSeries;
 
     private PointsGraphSeries<DataPoint> SCRGraphSeries, MarkGraphSeries, EventGraphSeries,test;
-    private LinearLayout shimmerConnectingLinearLayout;
 
 
     private List<SCR> SCRvalues = new ArrayList<SCR>();
@@ -95,7 +91,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private final String TAG = MeasurementShimmer.class.getSimpleName();
 
     public static final String libraryDefault = "default";
-
+    PopupMenu eventWindow;
 
 
     private Measurement measurement;
@@ -119,7 +115,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private String event = "event1";
     private String emotion = "happy";
 
-    private TextView chosenEvent;
+    private TextView tv_currentEvent;
     private Event event1;
     private Event event2;
     private Event event3;
@@ -148,6 +144,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private TextView SCRamount;
     private TextView SCL;
     private TextView SCLAverage;
+    private TextView tv_test;
 
     SignalDetector signalDetector = new SignalDetector();
     int lag = 50;
@@ -159,12 +156,10 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_measurement_shimmer);
-
         connectWithShimmerButton = findViewById(R.id.ConnectWithShimmer);
         startMeasurementButton = findViewById(R.id.startMeasurement);
         stopMeasurementButton = findViewById(R.id.stopMeasurement);
-        shimmerConnectingLinearLayout=findViewById(R.id.shimmerConnectedLinearLayout);
-
+        tv_test=findViewById(R.id.tv_editEvent);
         wearable = (Wearable) getIntent().getSerializableExtra("wearable");
 
         //Initialize Events
@@ -183,7 +178,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         shimmer = new Shimmer(mHandler);
 
         //Connect To sparsEDA service
-        createWebSocketClient();
+//        createWebSocketClient();
         initGraph();
         gson = new Gson();
         measurement = new Measurement();
@@ -193,7 +188,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         measurement.setName("Meting 1");
         //measurement.setWearable(wearable.getName());
 
-        chosenEvent = findViewById(R.id.ChosenEvent);
+        tv_currentEvent = findViewById(R.id.ChosenEvent);
 
         startEvent = findViewById(R.id.StartEvent);
         stopEvent = findViewById(R.id.StopEvent);
@@ -276,7 +271,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                     Toast.makeText(getApplicationContext(), currentEvent.getName()+"haven't finished!", Toast.LENGTH_SHORT).show();
                 }else{
                     double i = measurement.getMeasurementValues().get(index - 1).getGSR() - 0.2;
-                    chosenEvent.setBackgroundColor(Color.parseColor("#ff9966"));
+                    tv_currentEvent.setBackgroundColor(Color.parseColor("#ff9966"));
                     EventGraphSeries.appendData(new DataPoint(index-1,i),true,200);
                     measurement.getMeasurementValues().get(index - 1).setEvent(sendEvent);
                     for(Event e: eventsList){
@@ -304,7 +299,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 //Event Judgement
                 if(currentEvent.getStatus()) {
                     double i = measurement.getMeasurementValues().get(index - 1).getGSR() - 0.1;
-                    chosenEvent.setBackgroundColor(Color.parseColor("#87f542"));
+                    tv_currentEvent.setBackgroundColor(Color.parseColor("#87f542"));
                     EventGraphSeries.appendData(new DataPoint(index - 1, i), true, 200);
                     measurement.getMeasurementValues().get(index - 1).setEvent(sendEvent);
                     for(Event e: eventsList){
@@ -317,6 +312,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 }
             }
         });
+
     }
 
     private void initGraph(){
@@ -375,13 +371,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
         graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(null, nf));
     }
-    //Event Popup Window
-    public void showEvent(View view){
-        PopupMenu eventWindow = new PopupMenu(this, view);
-        eventWindow.setOnMenuItemClickListener(this);
-        eventWindow.inflate(R.menu.menu);
-        eventWindow.show();
-    }
+
 
     //Not be used yet
     public void eventA(View view) {
@@ -404,7 +394,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
             connectWithShimmerButton.setEnabled(false);
             Intent intent = new Intent(getApplicationContext(), ShimmerBluetoothDialogT.class);
             startActivityForResult(intent, ShimmerBluetoothDialogT.REQUEST_CONNECT_SHIMMER);
-            Log.e("Shimmer", "Connected Shimmer");
+            Log.e("Shimmer", "Start to connect with Shimmer");
         }
     }
 
@@ -420,12 +410,13 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
             if (resultCode == Activity.RESULT_OK) {
                 //Get the Bluetooth mac address of the selected device:
                 String macAdd = data.getStringExtra(EXTRA_DEVICE_ADDRESS);
-                shimmer = new Shimmer(mHandler);
+//                shimmer = new Shimmer(mHandler);
                 //Connect to the selected device
-                shimmer.connect(macAdd, "default");
+                shimmer.connect(macAdd, libraryDefault);
                 startMeasurementButton.setEnabled(true);
                 while (shimmer.getState()== ShimmerBluetooth.BT_STATE.CONNECTING){
                     //Waiting for connecting
+                    Log.e("Shimmer", "Connecting to Shimmer");
                 }
                 Log.e(TAG, String.valueOf(shimmer.getState()));
                 if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
@@ -435,39 +426,165 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                     connectWithShimmerButton.setEnabled(true);
                 }else {
                     Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
+                    createWebSocketClient();
                 }
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private void popUpEditText(Event event) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set event name");
+
+        final EditText input = new EditText(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                // do something here on OK
+                event.setName(input.getText().toString());
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+    }
+
+
+    //Event Popup Window
+    public void showEvent(View view){
+        eventWindow = new PopupMenu(this, view);
+        eventWindow.setOnMenuItemClickListener(this);
+        eventWindow.inflate(R.menu.menu);
+        Menu temp= eventWindow.getMenu();
+        if (event1!=null){
+            temp.getItem(0).setTitle(event1.getName());
+        }
+        if (event2!=null){
+            temp.getItem(1).setTitle(event2.getName());
+        }
+        if (event3!=null){
+            temp.getItem(2).setTitle(event3.getName());
+        }
+        if (event4!=null){
+            temp.getItem(3).setTitle(event4.getName());
+        }
+        invalidateOptionsMenu();
+        eventWindow.show();
+    }
+
+    @Override
+    public void invalidateOptionsMenu() {
+        super.invalidateOptionsMenu();
+    }
+
+    public void showEditEvent(View view) {
+        eventWindow = new PopupMenu(this, view);
+        eventWindow.setOnMenuItemClickListener(this);
+        eventWindow.inflate(R.menu.menu);
+        Menu temp= eventWindow.getMenu();
+        MenuItem T=temp.findItem(R.id.event1);
+        MenuItem T2=temp.findItem(R.id.event2);
+        MenuItem T3=temp.findItem(R.id.event3);
+        MenuItem T4=temp.findItem(R.id.event4);
+        T.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                popUpEditText(event1);
+                return false;
+            }
+        });
+
+        T2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                popUpEditText(event2);
+                return false;
+            }
+        });
+
+        T3.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                popUpEditText(event3);
+                return false;
+            }
+        });
+
+        T4.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                popUpEditText(event4);
+                return false;
+            }
+        });
+
+
+
+        if (event1!=null){
+            temp.getItem(0).setTitle(event1.getName());
+        }
+        if (event2!=null){
+            temp.getItem(1).setTitle(event2.getName());
+        }
+        if (event3!=null){
+            temp.getItem(2).setTitle(event3.getName());
+        }
+        if (event4!=null){
+            temp.getItem(3).setTitle(event4.getName());
+        }
+        invalidateOptionsMenu();
+        eventWindow.show();
+
+    }
+
+
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.event1:
-                Toast.makeText(this, "Event 1 clicked", Toast.LENGTH_SHORT).show();
                 currentEvent = event1;
+                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                Toast.makeText(this, event1.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event2:
-                Toast.makeText(this, "Event 2 clicked", Toast.LENGTH_SHORT).show();
                 currentEvent = event2;
+                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                Toast.makeText(this, "Event 2 clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event3:
-                Toast.makeText(this, "Event 3 clicked", Toast.LENGTH_SHORT).show();
                 currentEvent = event3;
+                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                Toast.makeText(this, "Event 3 clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event4:
-                Toast.makeText(this, "Event 4 clicked", Toast.LENGTH_SHORT).show();
                 currentEvent = event4;
+                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                Toast.makeText(this, "Event 4 clicked", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 return false;
         }
         if(currentEvent.getStatus()){
-            chosenEvent.setBackgroundColor(Color.parseColor("#ff9966")); //
+            tv_currentEvent.setBackgroundColor(Color.parseColor("#ff9966")); //
         }else
-            chosenEvent.setBackgroundColor(Color.parseColor("#87f542"));
-        chosenEvent.setText(currentEvent.getName().toUpperCase());
+            tv_currentEvent.setBackgroundColor(Color.parseColor("#87f542"));
         return true;
     }
 
@@ -485,7 +602,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         webSocketClient = new WebSocketClient(uri) {
             @Override
             public void onOpen() {
-                Log.i("WebSocket", "Session is starting");
+                Log.e("WebSocket", "Session is starting");
             }
 
             @Override
@@ -610,7 +727,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
             }
         };
 
-        webSocketClient.connect();
+        try {
+            webSocketClient.connect();
+        }catch (Exception e){
+            throw new IllegalStateException("WebSocketClient is not reusable");
+        }
     }
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()){
@@ -746,7 +867,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 Log.d(TAG, "Stopped Shimmer Streaming and Logging");
             }
         }
-        shimmer.disconnect();
+        if (shimmer.getState()== ShimmerBluetooth.BT_STATE.CONNECTED){
+            shimmer.disconnect();
+        }
         Log.i(TAG, "Shimmer DISCONNECTED");
         super.onStop();
     }
