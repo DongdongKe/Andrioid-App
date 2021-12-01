@@ -56,7 +56,8 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.1.0'
 
     // Movesense .aar lib
-    implementation(name: 'mdslib', version: '1.44.0(1)-release', ext: 'aar')
+    //implementation(name: 'mdslib', version: '1.44.0(1)-release', ext: 'aar')
+    implementation(name: 'mdslib', version: '1.63.0(1)-release', ext: 'aar')
 
     // RxAndroidBle
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'

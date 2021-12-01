@@ -267,6 +267,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
             @Override
             public void onClick(View view) {
                 eventText = (String) btn_event1.getText();
+                Toast.makeText(getApplicationContext(), eventText+" event Clicked", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -290,6 +291,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
             @Override
             public void onClick(View view) {
                 eventText = (String) btn_event2.getText();
+                Toast.makeText(getApplicationContext(), eventText+" event Clicked", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -311,6 +313,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
             @Override
             public void onClick(View view) {
                 eventText = (String) btn_event3.getText();
+                Toast.makeText(getApplicationContext(), eventText+" event Clicked", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -502,7 +505,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                                     //Saving data
                                     mCsvLogger.appendHeader("Timestamp,Heart,interval,RMSSD,Event,StressAmount");
                                     mCsvLogger.appendLine(String.format(Locale.getDefault(),
-                                            "%s,%.0f,%d,%s,%s,%s",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,sumOfSquare,meanSquare));
+                                            "%s,%.0f,%d,%s,%s,%s",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,eventText,stress_amount));
                                     break;
                                 default:
                                     break;

@@ -41,7 +41,7 @@ public class ExampleUnitTest {
 
         double averageRmssd = Sum(intervalSquareDifferenceList)/intervalSquareDifferenceList.size();
         double squareRootRmssd=  Math.sqrt(averageRmssd);
-        assertEquals(100,squareRootRmssd,0);
+        assertEquals(44.58,squareRootRmssd,0);
     }
 
     public double Sum(List<Double> list) {
@@ -53,50 +53,48 @@ public class ExampleUnitTest {
 
     public void AddData(){
         intervalList.addAll(Arrays.asList(
-                796
-                ,773
-                ,773
+                812
+                ,828
+                ,820
+                ,812
                 ,757
-                ,679
+                ,710
+                ,742
+                ,812
+                ,828
+                ,781
+                ,804
+                ,726
                 ,687
                 ,710
-                ,695
-                ,656
-                ,632
-                ,625
-                ,632
-                ,617
-                ,640
-                ,664
-                ,656
-                ,632
-                ,625
-                ,632
-                ,656
-                ,679
+                ,765
+                ,789
+                ,820
+                ,789
+                ,765
                 ,695
                 ,679
-                ,640
-                ,656
-                ,664
-                ,679
-                ,671
-                ,664
-                ,632
-                ,617
-                ,625
-                ,625
-                ,632
-                ,648
-                ,640
-                ,695
+                ,703
+                ,750
+                ,812
+                ,765
                 ,726
-                ,742
-                ,710
+                ,796
+                ,835
+                ,828
+                ,820
+                ,726
+                ,750
+                ,750
+                ,765
+                ,781
+                ,765
                 ,695
                 ,703
-                ,695
-                ,664
+                ,734
+                ,781
+                ,679
+
 
         ));
     }

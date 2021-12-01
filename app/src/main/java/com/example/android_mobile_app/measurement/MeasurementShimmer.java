@@ -71,8 +71,6 @@ import tech.gusavila92.websocketclient.WebSocketClient;
 
 public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
-    private Wearable wearable;
-
     private Shimmer shimmer;
 
     private Button connectWithShimmerButton, startMeasurementButton, stopMeasurementButton;
@@ -83,7 +81,10 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
 
     private List<SCR> SCRvalues = new ArrayList<SCR>();
+
     private List<Double> testList = new ArrayList<>();
+    private Double peakResult;
+
 
     private List<SCR> finalSCRvalues = new ArrayList<SCR>();
     //private int highestIndex = 0;
@@ -104,6 +105,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
 
     private int index = 0;
+    private final SignalDetector signalDetector = new SignalDetector(testList,100,0.4,0.5);
 
     private WebSocketClient webSocketClient;
 
@@ -146,7 +148,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private TextView SCLAverage;
     private TextView tv_test;
 
-    SignalDetector signalDetector = new SignalDetector();
     int lag = 50;
     double threshold = 4;
     double influence = 0;
@@ -160,7 +161,8 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         startMeasurementButton = findViewById(R.id.startMeasurement);
         stopMeasurementButton = findViewById(R.id.stopMeasurement);
         tv_test=findViewById(R.id.tv_editEvent);
-        wearable = (Wearable) getIntent().getSerializableExtra("wearable");
+//        wearable = (Wearable) getIntent().getSerializableExtra("wearable");
+
 
         //Initialize Events
         event1 = new Event("event1");
@@ -186,7 +188,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         measurementID = UUID.randomUUID().toString();
         measurement.setID(measurementID);
         measurement.setName("Meting 1");
-        //measurement.setWearable(wearable.getName());
+//        measurement.setWearable(wearable.getName());
+        measurement.setWearable("Shimmer3-6122");
+
 
         tv_currentEvent = findViewById(R.id.ChosenEvent);
 
@@ -421,7 +425,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                 Log.e(TAG, String.valueOf(shimmer.getState()));
                 if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
                     Log.e(TAG, String.valueOf(shimmer.getState()));
-                    Toast.makeText(this, "Can't connect,please try it again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Can't connect,please wait a sec while opening bluetooth", Toast.LENGTH_SHORT).show();
                     startMeasurementButton.setEnabled(false);
                     connectWithShimmerButton.setEnabled(true);
                 }else {
@@ -667,7 +671,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                             double i = measurement.getMeasurementValues().get(scr.getIndex() - 1).getGSR() + 0.1;
 
                                             //easy for user to see SCR
-                                            SCRGraphSeries.appendData(new DataPoint(scr.getIndex() - 1, i), true, 200);
+//                                            SCRGraphSeries.appendData(new DataPoint(scr.getIndex() - 1, i), true, 200);
                                             //show SCR value on the graph
                                             //SCRGraphSeries.appendData(new DataPoint(scr.getIndex()-1,scr.getValue()),true, 200);
                                             SCRvalues.add(scr);
@@ -778,11 +782,19 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                         Gson gson = new Gson();
 
                         String json = gson.toJson(measurementDTO);
+                        testList.add(index,GSR);
 
                         webSocketClient.send(json);
-                        //add
-//                        testList.add(index,GSR);
-//                        List<Integer> resultsMap = signalDetector.analyzeDataForSignals(testList, lag, threshold, influence);
+                        //Peak detectionS
+                        if (index>100){
+                             signalDetector.setList(testList);
+                             peakResult= signalDetector.thresholding_algo(GSR);
+                             if (peakResult==1){
+                                 SCRGraphSeries.appendData(new DataPoint(index,GSR),true,200);
+                                 Log.e("Peak", "Peak detected");
+                                 Toast.makeText(getApplicationContext(),"Peak detected detected!", Toast.LENGTH_SHORT).show();
+                             }
+                        }
 
                         runOnUiThread(new Runnable()
                         {

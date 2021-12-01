@@ -23,10 +23,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".Movesense.ShareLogs">
-
+        <activity
+            android:name=".Movesense.ShareLogs">
         </activity>
-
 
         <activity
             android:name=".MovesenseConnectionActivity"
