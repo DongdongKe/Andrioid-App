@@ -37,6 +37,10 @@ public class Measurement implements Serializable {
     @TypeConverters(Converters.class)
     private List<MeasurementValue> measurementValues = new ArrayList<MeasurementValue>();
 
+
+//    @TypeConverters(Converters.class)
+//    private List<MeasurementValue> hrvValues = new ArrayList<MeasurementValue>();
+
     public Measurement(String ID, String wearable, Timestamp timestampStart, Timestamp timestampEnd, String name, List<MeasurementValue> measurementValues) {
         this.ID = ID;
         this.wearable = wearable;
@@ -44,6 +48,7 @@ public class Measurement implements Serializable {
         this.timestampEnd = timestampEnd;
         this.name = name;
         this.measurementValues = measurementValues;
+
     }
 
     @Ignore
@@ -97,6 +102,7 @@ public class Measurement implements Serializable {
     public void setMeasurementValues(List<MeasurementValue> measurementValues) {
         this.measurementValues = measurementValues;
     }
+
 
     @Override
     public String toString() {

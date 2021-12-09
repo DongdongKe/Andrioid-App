@@ -3,6 +3,7 @@ package com.example.android_mobile_app.measurement;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -27,10 +28,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.android_mobile_app.MeasurementCompleted;
 import com.example.android_mobile_app.Movesense.CsvLogger;
 import com.example.android_mobile_app.Movesense.FormatHelper;
 import com.example.android_mobile_app.Movesense.MdsRx;
 import com.example.android_mobile_app.R;
+import com.example.android_mobile_app.domain.Measurement;
+import com.example.android_mobile_app.domain.MeasurementValue;
+import com.example.android_mobile_app.dto.SCR;
 import com.example.android_mobile_app.model.EcgModel;
 import com.example.android_mobile_app.model.EnergyGetModel;
 import com.example.android_mobile_app.model.HeartRate;
@@ -59,6 +64,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 
 public class MeasurementMovesense extends AppCompatActivity implements BleManager.IBleConnectionMonitor, AdapterView.OnItemSelectedListener {
@@ -82,7 +88,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     private final String ECG_VELOCITY_INFO_PATH = "/Meas/ECG/Info";
     private final String LINEAR_ACCELERATION_PATH = "Meas/Acc/";
     public static final String URI_EVENTLISTENER = "suunto://MDS/EventListener";
-
+    private int index=0;
     TextView tv_battery,tv_deviceName,tv_heartRate,tv_test,tv_timer,btnRecord;
     ImageView img1,img2,img3,img4,img5;
     GraphView ecgGraph;
@@ -91,7 +97,8 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 
 
 
-    Boolean startProcessing;
+    private Boolean runOnce=true;
+    private Boolean startProcessing;
     private long start_time =0;
     private final String TAG = MeasurementMovesense.class.getSimpleName();
     private Handler handler = new Handler();
@@ -124,6 +131,10 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     public double selectedTimeWindow =30;
     public double maxTimeMillis =30;
     public double currentTimer;
+    private Measurement measurement;
+    private String measurementID;
+
+
 
 
     //List of raw data
@@ -131,6 +142,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     int endIndexRR =0;
     //List of 30seconds data
     private List<Map.Entry<Timestamp,Double>> intervalSquareDifferenceList= new ArrayList<>();
+    private List<Double> hrvList= new ArrayList();
 
     enum recordState{
         idle,
@@ -172,6 +184,13 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_measurement_movesense);
+        measurement= new Measurement();
+
+        measurementID = UUID.randomUUID().toString();
+        measurement.setID(measurementID);
+        measurement.setName("Meting 1");
+//        measurement.setWearable(wearable.getName());
+        measurement.setWearable("Movesense");
 
         edit = "";
         event1 = false;
@@ -416,6 +435,27 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
         return seconds;
     }
 
+    public void stopStreaming() {
+        if(hrvList.size()>0){
+            for(int index=0; index< hrvList.size(); index++){
+
+                measurement.getMeasurementValues().get(index).setHRV(hrvList.get(index));
+            }
+            measurement.setTimestampEnd(new Timestamp(System.currentTimeMillis()));
+
+            Intent intent = new Intent(getApplicationContext(), MeasurementCompleted.class);
+            intent.putExtra("measurement", measurement);
+
+            startActivity(intent);
+
+            finish();
+        }else {
+            Toast.makeText(getApplicationContext(),"No enough time for saving measurement:", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
     public void getECGGraph() {
         mDataPointsAppended = 0;
         mCsvLogger.checkRuntimeWriteExternalStoragePermission(this, this);
@@ -431,6 +471,7 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNotification(String data) {
+
                         Log.e(TAG, "Heart rate onNotification() : " + data);
                         HeartRate heartRate = new Gson().fromJson(data, HeartRate.class);
                         if (heartRate != null) {
@@ -443,10 +484,16 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                             switch (myState){
                                 case stop:
                                     unSubscribe();
+                                    stopStreaming();
+                                    Toast.makeText(getApplicationContext(),"Stop running", Toast.LENGTH_SHORT).show();
+                                    myState=recordState.idle;
                                     break;
                                 case running:
-                                    //New rr
                                     timestamp=new Timestamp(System.currentTimeMillis());
+                                    if (runOnce){
+                                        measurement.setTimestampStart(timestamp);
+                                        runOnce=false;
+                                    }
                                     newPair=new AbstractMap.SimpleEntry<>(timestamp,rr);
                                     //Post-Processing data
                                     try {
@@ -490,10 +537,21 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 //                                        }
                                     }
 
-                                    //Calculation part
+                                    //Final Calculation part
                                     sumOfSquare = sum(intervalSquareDifferenceList);
                                     meanSquare = sumOfSquare/intervalSquareDifferenceList.size();
                                     squareRootRmssd=  Math.sqrt(meanSquare);
+                                    Double roundedRmssd= (Math.round(squareRootRmssd*100.0)/100.0);
+                                    hrvList.add(roundedRmssd);
+                                    MeasurementValue measurementValue = new MeasurementValue();
+
+                                    measurementValue.setHRV(roundedRmssd);
+                                    //measurementValue.setGSR(signal[index]);
+
+                                    measurementValue.setTimestamp_t(timestamp);
+
+                                    measurement.getMeasurementValues().add(measurementValue);
+                                    Log.e("Test",String.valueOf(squareRootRmssd));
                                     rmssdString= Double.toString(Math.round(squareRootRmssd*100.0)/100.0);
                                     if (!startProcessing){
                                         rmssdString ="waiting";
@@ -506,6 +564,8 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                                     mCsvLogger.appendHeader("Timestamp,Heart,interval,RMSSD,Event,StressAmount");
                                     mCsvLogger.appendLine(String.format(Locale.getDefault(),
                                             "%s,%.0f,%d,%s,%s,%s",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,eventText,stress_amount));
+                                    break;
+                                case idle:
                                     break;
                                 default:
                                     break;

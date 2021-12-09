@@ -7,16 +7,67 @@
     tools:context=".MeasurementGraph">
 
     <LinearLayout
+        android:id="@+id/linearLayout6"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="top"
         android:orientation="vertical">
 
         <com.jjoe64.graphview.GraphView
-            android:layout_margin="20dp"
+            android:id="@+id/dataGraph"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/dataGraph" />
+            android:layout_margin="30dp" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_Max"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Max:"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            android:paddingRight="30dp">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/tv_Min"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Min:"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/linearLayout6"
+            app:layout_constraintTop_toBottomOf="parent"></TextView>
+
+        <TextView
+            android:id="@+id/tv_Avg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/linearLayout6"
+            app:layout_constraintTop_toBottomOf="parent"></TextView>
+    </LinearLayout>
+
+<!--    <com.jjoe64.graphview.GraphView-->
+<!--        android:id="@+id/dataGraph"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_margin="60dp"-->
+<!--        android:paddingLeft="20dp"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

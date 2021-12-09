@@ -1,16 +1,21 @@
 package com.example.android_mobile_app.domain;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class MeasurementValue implements Serializable {
 
     private double timestamp;
+
+    private Timestamp timestamp_t;
 
     private double GSR;
 
     private double SCL;
 
     private double SCR;
+
+    private double HRV;
 
     //Using to match Final SCR with timestamp
     private int index;
@@ -31,6 +36,14 @@ public class MeasurementValue implements Serializable {
 
     public void setTimestamp(double timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Timestamp getTimestamp_t() {
+        return timestamp_t;
+    }
+
+    public void setTimestamp_t(Timestamp timestamp_t) {
+        this.timestamp_t = timestamp_t;
     }
 
     public double getGSR() {
@@ -89,6 +102,14 @@ public class MeasurementValue implements Serializable {
         this.finalSCR = finalSCR;
     }
 
+    public void setHRV(double hrv) {
+        this.HRV = hrv;
+    }
+
+    public double getHRV() {
+        return HRV;
+    }
+
     @Override
     public String toString() {
         return "MeasurementValue{" +
@@ -96,6 +117,7 @@ public class MeasurementValue implements Serializable {
                 ", GSR=" + GSR +
                 ", SCL=" + SCL +
                 ", SCR=" + SCR +
+                ", HRV=" + HRV +
                 '}';
     }
 

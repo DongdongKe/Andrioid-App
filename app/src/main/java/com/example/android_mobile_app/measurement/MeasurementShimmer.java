@@ -60,8 +60,14 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
+import org.apache.commons.math3.stat.descriptive.moment.Skewness;
+
 
 import static com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog.EXTRA_DEVICE_ADDRESS;
 
@@ -70,6 +76,8 @@ import tech.gusavila92.websocketclient.WebSocketClient;
 
 
 public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+
+    private Kurtosis kurtosis= new Kurtosis();
 
     private Shimmer shimmer;
 
@@ -83,16 +91,14 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private List<SCR> SCRvalues = new ArrayList<SCR>();
 
     private List<Double> testList = new ArrayList<>();
-    private Double peakResult;
 
 
     private List<SCR> finalSCRvalues = new ArrayList<SCR>();
-    //private int highestIndex = 0;
 
     private final String TAG = MeasurementShimmer.class.getSimpleName();
 
     public static final String libraryDefault = "default";
-    PopupMenu eventWindow;
+    private PopupMenu eventWindow;
 
 
     private Measurement measurement;
@@ -105,7 +111,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
 
     private int index = 0;
-    private final SignalDetector signalDetector = new SignalDetector(testList,100,0.4,0.5);
+//    private final SignalDetector signalDetector = new SignalDetector(testList,100,0.5,0.5);
 
     private WebSocketClient webSocketClient;
 
@@ -140,9 +146,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
     //SCR amount, SCL, SCL average
     private List<Double> SCLs = new ArrayList<>();
+
     private int sclAmount = 0;
     private double sclAverage = 0;
-
     private TextView SCRamount;
     private TextView SCL;
     private TextView SCLAverage;
@@ -151,7 +157,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     int lag = 50;
     double threshold = 4;
     double influence = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -412,25 +417,29 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == 2) {
             if (resultCode == Activity.RESULT_OK) {
-                //Get the Bluetooth mac address of the selected device:
-                String macAdd = data.getStringExtra(EXTRA_DEVICE_ADDRESS);
+                try {
+                    //Get the Bluetooth mac address of the selected device:
+                    String macAdd = data.getStringExtra(EXTRA_DEVICE_ADDRESS);
 //                shimmer = new Shimmer(mHandler);
-                //Connect to the selected device
-                shimmer.connect(macAdd, libraryDefault);
-                startMeasurementButton.setEnabled(true);
-                while (shimmer.getState()== ShimmerBluetooth.BT_STATE.CONNECTING){
-                    //Waiting for connecting
-                    Log.e("Shimmer", "Connecting to Shimmer");
-                }
-                Log.e(TAG, String.valueOf(shimmer.getState()));
-                if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
+                    //Connect to the selected device
+                    shimmer.connect(macAdd, libraryDefault);
+                    startMeasurementButton.setEnabled(true);
+                    while (shimmer.getState()== ShimmerBluetooth.BT_STATE.CONNECTING){
+                        //Waiting for connecting
+                        Log.e("Shimmer", "Connecting to Shimmer");
+                    }
                     Log.e(TAG, String.valueOf(shimmer.getState()));
-                    Toast.makeText(this, "Can't connect,please wait a sec while opening bluetooth", Toast.LENGTH_SHORT).show();
-                    startMeasurementButton.setEnabled(false);
-                    connectWithShimmerButton.setEnabled(true);
-                }else {
-                    Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
-                    createWebSocketClient();
+                    if (shimmer.getState()== ShimmerBluetooth.BT_STATE.DISCONNECTED){
+                        Log.e(TAG, String.valueOf(shimmer.getState()));
+                        Toast.makeText(this, "Can't connect,please wait a sec while opening bluetooth", Toast.LENGTH_SHORT).show();
+                        startMeasurementButton.setEnabled(false);
+                        connectWithShimmerButton.setEnabled(true);
+                    }else {
+                        Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
+                        createWebSocketClient();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
         }
@@ -466,7 +475,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
             }
         });
         builder.show();
-
     }
 
 
@@ -498,7 +506,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     }
 
     public void showEditEvent(View view) {
-        eventWindow = new PopupMenu(this, view);
+        PopupMenu eventWindow = new PopupMenu(this, view);
         eventWindow.setOnMenuItemClickListener(this);
         eventWindow.inflate(R.menu.menu);
         Menu temp= eventWindow.getMenu();
@@ -540,18 +548,18 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
 
 
-        if (event1!=null){
-            temp.getItem(0).setTitle(event1.getName());
-        }
-        if (event2!=null){
-            temp.getItem(1).setTitle(event2.getName());
-        }
-        if (event3!=null){
-            temp.getItem(2).setTitle(event3.getName());
-        }
-        if (event4!=null){
-            temp.getItem(3).setTitle(event4.getName());
-        }
+//        if (event1!=null){
+//            temp.getItem(0).setTitle(event1.getName());
+//        }
+//        if (event2!=null){
+//            temp.getItem(1).setTitle(event2.getName());
+//        }
+//        if (event3!=null){
+//            temp.getItem(2).setTitle(event3.getName());
+//        }
+//        if (event4!=null){
+//            temp.getItem(3).setTitle(event4.getName());
+//        }
         invalidateOptionsMenu();
         eventWindow.show();
 
@@ -563,24 +571,28 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.event1:
-                currentEvent = event1;
-                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, event1.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                if (event1!=null){
+                    currentEvent = event1;
+                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                    Toast.makeText(this, event1.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                }
+
+
                 break;
             case R.id.event2:
                 currentEvent = event2;
                 tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, "Event 2 clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, event2.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event3:
                 currentEvent = event3;
                 tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, "Event 3 clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, event3.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event4:
                 currentEvent = event4;
                 tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, "Event 4 clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, event4.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 return false;
@@ -598,7 +610,8 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
         try {
             //ws://20.71.20.193:8080/websocket
-            uri = new URI("ws://20.71.20.193:8080/websocket");//ws://localhost:8080/websocket   192.168.31.87:4200 ws://192.168.31.87:4200/websocket
+            //"http://192.168.1.19:8080/websocket"
+            uri = new URI("ws://192.168.1.19:8082/websocket");//ws://localhost:8080/websocket   192.168.31.87:4200 ws://192.168.31.87:4200/websocket
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -622,7 +635,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                             public void run()
                             {
                                 Log.e("index", String.valueOf(responseDTO.getIndex()));
-
+                                //SCL part
                                 SCLGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, responseDTO.getSCL()), true, 200);
 //                                measurement.getMeasurementValues().get(responseDTO.getIndex() - 1).setSCL(responseDTO.getSCL());
 
@@ -649,9 +662,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 //                            Log.e("DOUBLE", String.valueOf(y));
 //                            SCRGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, y), true, 200);
 //                        }
-
-                                if (responseDTO.getSCRvalues().size() > 0){
-                                    for(SCR scr : responseDTO.getSCRvalues()){
+                                //SCR part
+                                if (responseDTO.getFinalSCRvalues().size() > 0){
+                                    for(SCR scr : responseDTO.getFinalSCRvalues()){
 
                                         double highestIndex = SCRGraphSeries.getHighestValueX();
 
@@ -671,13 +684,25 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                             double i = measurement.getMeasurementValues().get(scr.getIndex() - 1).getGSR() + 0.1;
 
                                             //easy for user to see SCR
-//                                            SCRGraphSeries.appendData(new DataPoint(scr.getIndex() - 1, i), true, 200);
+                                            SCRGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, i), true, 200);
                                             //show SCR value on the graph
                                             //SCRGraphSeries.appendData(new DataPoint(scr.getIndex()-1,scr.getValue()),true, 200);
                                             SCRvalues.add(scr);
                                             measurement.getMeasurementValues().get(scr.getIndex() - 1).setSCR(scr.getValue());
                                         }
+//                                    List<SCR> returnToDraw = new ArrayList<>(responseDTO.getSCRvalues());
+//                                    returnToDraw.removeAll(SCRvalues);
+//                                    for(SCR scr : returnToDraw){
+//                                        double y = measurement.getMeasurementValues().get(scr.getIndex() - 1).getGSR() + 0.1;
+//                                        Log.e("SCR Index",String.valueOf(scr.getIndex()));
+//                                        SCRGraphSeries.appendData(new DataPoint(scr.getIndex() - 1, y), true, 200);
+//                                        measurement.getMeasurementValues().get(scr.getIndex() - 1).setSCR(scr.getValue());
+//                                        Log.e("Position X:",String.valueOf(scr.getIndex()-1));
+//                                        SCRvalues.add(scr);
+
+
                                     }
+
 
                                     int size = responseDTO.getSCRvalues().size();
                                     if(size<10){
@@ -769,7 +794,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                         measurement.getMeasurementValues().add(measurementValue);
 
 
-                        Log.e("GSR", String.valueOf(index));
+//                        Log.e("GSR", String.valueOf(index));
                         com.example.android_mobile_app.dto.MeasurementDTO measurementDTO = new com.example.android_mobile_app.dto.MeasurementDTO();
 
                         //Tell websocket what SR to use
@@ -786,15 +811,15 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
                         webSocketClient.send(json);
                         //Peak detectionS
-                        if (index>100){
-                             signalDetector.setList(testList);
-                             peakResult= signalDetector.thresholding_algo(GSR);
-                             if (peakResult==1){
-                                 SCRGraphSeries.appendData(new DataPoint(index,GSR),true,200);
-                                 Log.e("Peak", "Peak detected");
-                                 Toast.makeText(getApplicationContext(),"Peak detected detected!", Toast.LENGTH_SHORT).show();
-                             }
-                        }
+//                        if (index>100){
+//                             signalDetector.setList(testList);
+//                             peakResult= signalDetector.thresholding_algo(GSR);
+//                             if (peakResult==1){
+//                                 SCRGraphSeries.appendData(new DataPoint(index,GSR),true,200);
+//                                 Log.e("Peak", "Peak detected");
+//                                 Toast.makeText(getApplicationContext(),"Peak detected detected!", Toast.LENGTH_SHORT).show();
+//                             }
+//                        }
 
                         runOnUiThread(new Runnable()
                         {
@@ -887,6 +912,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     }
 
     public void startStreaming(View view) {
+
 
         Log.e("Shimmer", "Streaming started");
         shimmer.getState();
