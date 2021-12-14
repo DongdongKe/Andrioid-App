@@ -72,11 +72,21 @@ import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 import static com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog.EXTRA_DEVICE_ADDRESS;
 
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import tech.gusavila92.websocketclient.WebSocketClient;
 
 
 public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
+    //Flask Connection
+    private String Flask_url = "http://" + "192.168.1.19:" + 3030 + "/";
+    private String postBodyString;
+    private MediaType mediaType;
+    private RequestBody requestBody;
+    private Button connect;
+
+    //ML parameter
     private Kurtosis kurtosis= new Kurtosis();
 
     private Shimmer shimmer;
@@ -112,6 +122,9 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
     private int index = 0;
 //    private final SignalDetector signalDetector = new SignalDetector(testList,100,0.5,0.5);
+    //    int lag = 50;
+//    double threshold = 4;
+//    double influence = 0;
 
     private WebSocketClient webSocketClient;
 
@@ -154,9 +167,14 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private TextView SCLAverage;
     private TextView tv_test;
 
-    int lag = 50;
-    double threshold = 4;
-    double influence = 0;
+
+
+    private RequestBody buildRequestBody(String msg) {
+        postBodyString = msg;
+        mediaType = MediaType.parse("text/plain");
+        requestBody = RequestBody.create(postBodyString, mediaType);
+        return requestBody;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +219,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
         startEvent = findViewById(R.id.StartEvent);
         stopEvent = findViewById(R.id.StopEvent);
+        SCRamount = findViewById(R.id.SCRamount);
+        SCL = findViewById(R.id.SCL);
+        SCLAverage = findViewById(R.id.SCLAver);
+
+        countdownText = findViewById(R.id.CountdownTimer);
 
         happyButton = findViewById(R.id.HappyButton);
         smileButton = findViewById(R.id.SmileButton);
@@ -208,12 +231,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         sadButton = findViewById(R.id.SadButton);
         angryButton = findViewById(R.id.AngryButton);
         currentEmotion = findViewById(R.id.CurrentEmotionShimmer);
-
-        SCRamount = findViewById(R.id.SCRamount);
-        SCL = findViewById(R.id.SCL);
-        SCLAverage = findViewById(R.id.SCLAver);
-
-        countdownText = findViewById(R.id.CountdownTimer);
 
 
         //region Emotion Button listener
@@ -506,10 +523,10 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     }
 
     public void showEditEvent(View view) {
-        PopupMenu eventWindow = new PopupMenu(this, view);
-        eventWindow.setOnMenuItemClickListener(this);
-        eventWindow.inflate(R.menu.menu);
-        Menu temp= eventWindow.getMenu();
+        PopupMenu Window = new PopupMenu(this, view);
+        Window.setOnMenuItemClickListener(this);
+        Window.inflate(R.menu.menu);
+        Menu temp= Window.getMenu();
         MenuItem T=temp.findItem(R.id.event1);
         MenuItem T2=temp.findItem(R.id.event2);
         MenuItem T3=temp.findItem(R.id.event3);
@@ -548,20 +565,20 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 
 
 
-//        if (event1!=null){
-//            temp.getItem(0).setTitle(event1.getName());
-//        }
-//        if (event2!=null){
-//            temp.getItem(1).setTitle(event2.getName());
-//        }
-//        if (event3!=null){
-//            temp.getItem(2).setTitle(event3.getName());
-//        }
-//        if (event4!=null){
-//            temp.getItem(3).setTitle(event4.getName());
-//        }
+        if (event1.getName()!=null){
+            temp.getItem(0).setTitle(event1.getName());
+        }
+        if (event2!=null){
+            temp.getItem(1).setTitle(event2.getName());
+        }
+        if (event3!=null){
+            temp.getItem(2).setTitle(event3.getName());
+        }
+        if (event4!=null){
+            temp.getItem(3).setTitle(event4.getName());
+        }
         invalidateOptionsMenu();
-        eventWindow.show();
+        Window.show();
 
     }
 
@@ -571,36 +588,43 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.event1:
-                if (event1!=null){
-                    currentEvent = event1;
-                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                if (event1.getName()!="event1"){
                     Toast.makeText(this, event1.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
                 }
-
-
+                currentEvent = event1;
                 break;
             case R.id.event2:
+                if (event2.getName()!="event2"){
+                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                    Toast.makeText(this, event2.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                }
                 currentEvent = event2;
-                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, event2.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event3:
+                if (event3.getName()!="event3"){
+                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                    Toast.makeText(this, event3.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                }
                 currentEvent = event3;
-                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, event3.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.event4:
+                if (event4.getName()!="event4"){
+                    tv_currentEvent.setText(currentEvent.getName().toUpperCase());
+                    Toast.makeText(this, event4.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
+                }
                 currentEvent = event4;
-                tv_currentEvent.setText(currentEvent.getName().toUpperCase());
-                Toast.makeText(this, event4.getName()+" Event clicked", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 return false;
         }
-        if(currentEvent.getStatus()){
-            tv_currentEvent.setBackgroundColor(Color.parseColor("#ff9966")); //
-        }else
-            tv_currentEvent.setBackgroundColor(Color.parseColor("#87f542"));
+        if (currentEvent!=null){
+            if(currentEvent.getStatus()){
+                tv_currentEvent.setBackgroundColor(Color.parseColor("#ff9966")); //
+            }else
+                tv_currentEvent.setBackgroundColor(Color.parseColor("#87f542"));
+        }
+
         return true;
     }
 
@@ -663,8 +687,8 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 //                            SCRGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, y), true, 200);
 //                        }
                                 //SCR part
-                                if (responseDTO.getFinalSCRvalues().size() > 0){
-                                    for(SCR scr : responseDTO.getFinalSCRvalues()){
+                                if (responseDTO.getSCRvalues().size() > 0){
+                                    for(SCR scr : responseDTO.getSCRvalues()){
 
                                         double highestIndex = SCRGraphSeries.getHighestValueX();
 
