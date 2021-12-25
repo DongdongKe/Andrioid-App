@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -152,18 +153,33 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 
     recordState myState=recordState.idle;
 
+
+
     //timer handler
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
-            long millis = System.currentTimeMillis() - start_time;
-            int totalSeconds = (int) (millis / 1000);
-            int minutes = totalSeconds / 60;
-            int hours = minutes / 60;
-            int seconds = totalSeconds % 60;
-            tv_timer.setText(String.format("%d:%d:%02d", hours, minutes, seconds));
-            timerHandler.postDelayed(this, 500);
+//            long millis = System.currentTimeMillis() - start_time;
+//            int totalSeconds = (int) (millis / 1000);
+//            int minutes = totalSeconds / 60;
+//            int hours = minutes / 60;
+//            int seconds = totalSeconds % 60;
+//            tv_timer.setText(String.format("%d:%d:%02d", hours, minutes, seconds));
+//            timerHandler.postDelayed(this, 500);
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO your background code
+                    long millis = System.currentTimeMillis() - start_time;
+                    int totalSeconds = (int) (millis / 1000);
+                    int minutes = totalSeconds / 60;
+                    int hours = minutes / 60;
+                    int seconds = totalSeconds % 60;
+                    tv_timer.setText(String.format("%d:%d:%02d", hours, minutes, seconds));
+                    timerHandler.postDelayed(this, 500);
+                }
+            });
         }
     };
 
@@ -255,28 +271,57 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
 
 
 
-        btnRecord.setText("start");
         btnRecord.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        //TODO your background code
+                        if (btnRecord.getText().equals("stop")) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    spinner.setEnabled(true);
+                                }
+                            });
+                            myState = recordState.stop;
+                            timerHandler.removeCallbacks(timerRunnable);
+//                            btnRecord.setText("start");
+                            btnRecord.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.buttonColor));
 
-                Button b = (Button) v;
-                if (b.getText().equals("stop")) {
-                    spinner.setEnabled(true);
-                    myState = recordState.stop;
-                    timerHandler.removeCallbacks(timerRunnable);
-                    b.setText("start");
-                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.buttonColor));
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    spinner.setEnabled(false);
+                                }
+                            });
+                            start_time = System.currentTimeMillis();
+                            timerHandler.postDelayed(timerRunnable, 0);
+//                            btnRecord.setText("stop");
+                            myState= recordState.running;
+                            btnRecord.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.red));
+                        }
+                    }
+                });
 
-                } else {
-                    spinner.setEnabled(false);
-                    start_time = System.currentTimeMillis();
-                    timerHandler.postDelayed(timerRunnable, 0);
-                    b.setText("stop");
-                    myState= recordState.running;
-                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.red));
-                }
+//                Button b = (Button) v;
+//                if (b.getText().equals("stop")) {
+//                    spinner.setEnabled(true);
+//                    myState = recordState.stop;
+//                    timerHandler.removeCallbacks(timerRunnable);
+//                    b.setText("start");
+//                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.buttonColor));
+//
+//                } else {
+//                    spinner.setEnabled(false);
+//                    start_time = System.currentTimeMillis();
+//                    timerHandler.postDelayed(timerRunnable, 0);
+//                    b.setText("stop");
+//                    myState= recordState.running;
+//                    b.setBackgroundTintList(getApplicationContext().getResources().getColorStateList(R.color.red));
+//                }
             }
         });
 
@@ -471,106 +516,110 @@ public class MeasurementMovesense extends AppCompatActivity implements BleManage
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onNotification(String data) {
-
-                        Log.e(TAG, "Heart rate onNotification() : " + data);
-                        HeartRate heartRate = new Gson().fromJson(data, HeartRate.class);
-                        if (heartRate != null) {
-                            double heart=(60.0 / heartRate.body.rrData[0]) * 1000;
-                            tv_heartRate.setText(String.format(Locale.getDefault(),
-                                    "Heart rate: %.0f [bpm]", heart));
-                            int rr= heartRate.body.rrData[0];
-
-                            //If the record btn is pressed, start to save raw data and calculate RMSSD(HRV)
-                            switch (myState){
-                                case stop:
-                                    unSubscribe();
-                                    stopStreaming();
-                                    Toast.makeText(getApplicationContext(),"Stop running", Toast.LENGTH_SHORT).show();
-                                    myState=recordState.idle;
-                                    break;
-                                case running:
-                                    timestamp=new Timestamp(System.currentTimeMillis());
-                                    if (runOnce){
-                                        measurement.setTimestampStart(timestamp);
-                                        runOnce=false;
-                                    }
-                                    newPair=new AbstractMap.SimpleEntry<>(timestamp,rr);
-                                    //Post-Processing data
-                                    try {
-                                        currentTimer = getSeconds(tv_timer.getText().toString());
-                                    } catch (Exception e) {
-
-                                    }
-                                    startProcessing= currentTimer> selectedTimeWindow;
-                                    //Add a few intervals without filtering out the interval
-                                    if (startProcessing){
-                                        comparedTimestamp = new Timestamp((long) (timestamp.getTime() - maxTimeMillis));
-                                        //Lambada
-                                        //pairList.removeIf(n -> n.getKey().before(comparedTimestamp));
-                                        Iterator<Map.Entry<Timestamp,Double>> iterator= intervalSquareDifferenceList.iterator();
-                                        while (iterator.hasNext()){
-                                            Map.Entry<Timestamp,Double> t= iterator.next();
-                                            Timestamp s= t.getKey();
-                                            if (t.getKey().before(comparedTimestamp)){
-                                                tempLast= t;
-                                                iterator.remove();
-                                            }else{
-                                                if (tempLast!=null){
-                                                    intervalSquareDifferenceList.add(0,tempLast);
-                                                }
+                            AsyncTask.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.e(TAG, "Heart rate onNotification() : " + data);
+                                    HeartRate heartRate = new Gson().fromJson(data, HeartRate.class);
+                                    if (heartRate != null) {
+                                        double heart = (60.0 / heartRate.body.rrData[0]) * 1000;
+                                        tv_heartRate.setText(String.format(Locale.getDefault(),
+                                                "Heart rate: %.0f [bpm]", heart));
+                                        int rr = heartRate.body.rrData[0];
+                                        //TODO your background code
+                                        //If the record btn is pressed, start to save raw data and calculate RMSSD(HRV)
+                                        switch (myState) {
+                                            case stop:
+                                                unSubscribe();
+                                                stopStreaming();
+                                                btnRecord.setText("start");
+                                                myState = recordState.idle;
                                                 break;
-                                            }
+                                            case running:
+                                                btnRecord.setText("stop");
+                                                timestamp = new Timestamp(System.currentTimeMillis());
+                                                if (runOnce) {
+                                                    measurement.setTimestampStart(timestamp);
+                                                    runOnce = false;
+                                                }
+                                                newPair = new AbstractMap.SimpleEntry<>(timestamp, rr);
+                                                //Post-Processing data
+                                                try {
+                                                    currentTimer = getSeconds(tv_timer.getText().toString());
+                                                } catch (Exception e) {
+
+                                                }
+                                                startProcessing = currentTimer > selectedTimeWindow;
+                                                //Add a few intervals without filtering out the interval
+                                                if (startProcessing) {
+                                                    comparedTimestamp = new Timestamp((long) (timestamp.getTime() - maxTimeMillis));
+                                                    //Lambada
+                                                    //pairList.removeIf(n -> n.getKey().before(comparedTimestamp));
+                                                    Iterator<Map.Entry<Timestamp, Double>> iterator = intervalSquareDifferenceList.iterator();
+                                                    while (iterator.hasNext()) {
+                                                        Map.Entry<Timestamp, Double> t = iterator.next();
+                                                        Timestamp s = t.getKey();
+                                                        if (t.getKey().before(comparedTimestamp)) {
+                                                            tempLast = t;
+                                                            iterator.remove();
+                                                        } else {
+                                                            if (tempLast != null) {
+                                                                intervalSquareDifferenceList.add(0, tempLast);
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (pairList.size() < 2) {
+                                                    pairList.add(newPair);
+                                                } else {
+                                                    endIndexRR = pairList.get(pairList.size() - 1).getValue();
+//                                        if (endIndexRR > (rr*0.8) && endIndexRR <(rr*1.2)) {
+                                                    pairList.add(newPair);
+                                                    double last = pairList.get(pairList.size() - 1).getValue();
+                                                    double secondLast = pairList.get(pairList.size() - 2).getValue();
+                                                    double t = Math.pow(secondLast - last, 2);
+                                                    intervalSquareDifferenceList.add(new AbstractMap.SimpleEntry<>(timestamp, t));
+//                                        }
+                                                }
+
+                                                //Final Calculation part
+                                                sumOfSquare = sum(intervalSquareDifferenceList);
+                                                meanSquare = sumOfSquare / intervalSquareDifferenceList.size();
+                                                squareRootRmssd = Math.sqrt(meanSquare);
+                                                Double roundedRmssd = (Math.round(squareRootRmssd * 100.0) / 100.0);
+                                                hrvList.add(roundedRmssd);
+                                                MeasurementValue measurementValue = new MeasurementValue();
+
+                                                measurementValue.setHRV(roundedRmssd);
+                                                //measurementValue.setGSR(signal[index]);
+
+                                                measurementValue.setTimestamp_t(timestamp);
+
+                                                measurement.getMeasurementValues().add(measurementValue);
+                                                Log.e("Test", String.valueOf(squareRootRmssd));
+                                                rmssdString = Double.toString(Math.round(squareRootRmssd * 100.0) / 100.0);
+                                                if (!startProcessing) {
+                                                    rmssdString = "waiting";
+                                                }
+
+
+                                                tv_test.setText("HRV(RMSSD): " + rmssdString);
+                                                isLogSaved = false;
+                                                //Saving data
+                                                mCsvLogger.appendHeader("Timestamp,Heart,interval,RMSSD,Event,StressAmount");
+                                                mCsvLogger.appendLine(String.format(Locale.getDefault(),
+                                                        "%s,%.0f,%d,%s,%s,%s", timestamp, (60.0 / heartRate.body.rrData[0]) * 1000, rr, rmssdString, eventText, stress_amount));
+                                                break;
+                                            case idle:
+                                                break;
+                                            default:
+                                                break;
                                         }
                                     }
-
-                                    if (pairList.size() <2) {
-                                        pairList.add(newPair);
-                                    }
-                                    else {
-                                        endIndexRR = pairList.get(pairList.size()-1).getValue();
-//                                        if (endIndexRR > (rr*0.8) && endIndexRR <(rr*1.2)) {
-                                        pairList.add(newPair);
-                                        double last=pairList.get(pairList.size()-1).getValue();
-                                        double secondLast=pairList.get(pairList.size()-2).getValue();
-                                        double t= Math.pow(secondLast-last,2);
-                                        intervalSquareDifferenceList.add(new AbstractMap.SimpleEntry<>(timestamp,t));
-//                                        }
-                                    }
-
-                                    //Final Calculation part
-                                    sumOfSquare = sum(intervalSquareDifferenceList);
-                                    meanSquare = sumOfSquare/intervalSquareDifferenceList.size();
-                                    squareRootRmssd=  Math.sqrt(meanSquare);
-                                    Double roundedRmssd= (Math.round(squareRootRmssd*100.0)/100.0);
-                                    hrvList.add(roundedRmssd);
-                                    MeasurementValue measurementValue = new MeasurementValue();
-
-                                    measurementValue.setHRV(roundedRmssd);
-                                    //measurementValue.setGSR(signal[index]);
-
-                                    measurementValue.setTimestamp_t(timestamp);
-
-                                    measurement.getMeasurementValues().add(measurementValue);
-                                    Log.e("Test",String.valueOf(squareRootRmssd));
-                                    rmssdString= Double.toString(Math.round(squareRootRmssd*100.0)/100.0);
-                                    if (!startProcessing){
-                                        rmssdString ="waiting";
-                                    }
-
-
-                                    tv_test.setText("HRV(RMSSD): "+rmssdString);
-                                    isLogSaved=false;
-                                    //Saving data
-                                    mCsvLogger.appendHeader("Timestamp,Heart,interval,RMSSD,Event,StressAmount");
-                                    mCsvLogger.appendLine(String.format(Locale.getDefault(),
-                                            "%s,%.0f,%d,%s,%s,%s",timestamp,(60.0 / heartRate.body.rrData[0]) * 1000,rr,rmssdString,eventText,stress_amount));
-                                    break;
-                                case idle:
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                                }
+                            });
                     }
 
                     @Override

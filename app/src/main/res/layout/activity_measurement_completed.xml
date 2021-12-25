@@ -44,6 +44,8 @@
                     android:textStyle="normal"
                     android:textColor="#663366"
                     android:id="@+id/toolbar_title2" />
+
+
             </LinearLayout>
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -61,6 +63,7 @@
                 android:textSize="16dp"
                 android:layout_gravity="center"
                 />
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textView_name"
                 android:layout_gravity="center"

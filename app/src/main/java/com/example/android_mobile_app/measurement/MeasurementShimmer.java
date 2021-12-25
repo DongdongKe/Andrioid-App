@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -18,9 +19,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,40 +57,63 @@ import com.shimmerresearch.driver.CallbackObject;
 import com.shimmerresearch.driver.Configuration;
 import com.shimmerresearch.driver.FormatCluster;
 import com.shimmerresearch.driver.ObjectCluster;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
 import org.apache.commons.math3.stat.descriptive.moment.Skewness;
+import org.jetbrains.annotations.NotNull;
 
 
 import static com.shimmerresearch.android.guiUtilities.ShimmerBluetoothDialog.EXTRA_DEVICE_ADDRESS;
 
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import tech.gusavila92.websocketclient.WebSocketClient;
 
 
 public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     //Flask Connection
-    private String Flask_url = "http://" + "192.168.1.19:" + 3030 + "/";
-    private String postBodyString;
-    private MediaType mediaType;
-    private RequestBody requestBody;
-    private Button connect;
+    private OkHttpClient okHttpClient;
+    private Request httpRequest;
+    private RequestBody formbody;
+//    private String Flask_url = "http://" + "192.168.1.19:" + 3030 + "/";
+//    private String postBodyString;
+//    private MediaType mediaType;
+//    private RequestBody requestBody;
+//    private Button connect;
 
     //ML parameter
     private Kurtosis kurtosis= new Kurtosis();
+    private  Skewness skewness =new Skewness();
+    private MediaPlayer mediaPlayer;
+    List<String> outputList= new ArrayList<>();
+
+
+
 
     private Shimmer shimmer;
 
@@ -143,6 +169,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private Event event4;
     private Event currentEvent;
     private List<Event> eventsList;
+    private ProgressBar progressBar;
 
     //Measurement Countdown
     private TextView countdownText;
@@ -167,14 +194,21 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     private TextView SCLAverage;
     private TextView tv_test;
 
+    public static final MediaType JSON
+            = MediaType.get("application/json; charset=utf-8");
 
 
-    private RequestBody buildRequestBody(String msg) {
-        postBodyString = msg;
-        mediaType = MediaType.parse("text/plain");
-        requestBody = RequestBody.create(postBodyString, mediaType);
-        return requestBody;
-    }
+//    private String post(String url, String json) throws IOException {
+//        RequestBody body = RequestBody.create(JSON, json);
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .post(body)
+//                .build();
+//        try (Response response = okHttpClient.newCall(request).execute()) {
+//            return response.body().string();
+//        }
+//    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +219,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         stopMeasurementButton = findViewById(R.id.stopMeasurement);
         tv_test=findViewById(R.id.tv_editEvent);
 //        wearable = (Wearable) getIntent().getSerializableExtra("wearable");
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alert);
 
 
         //Initialize Events
@@ -201,9 +236,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         eventsList.add(event4);
 
         shimmer = new Shimmer(mHandler);
+        progressBar = findViewById(R.id.stressLevel);
+        progressBar.setMax(100);
 
         //Connect To sparsEDA service
-//        createWebSocketClient();
+        createWebSocketClient();
         initGraph();
         gson = new Gson();
         measurement = new Measurement();
@@ -399,21 +436,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     }
 
 
-    //Not be used yet
-    public void eventA(View view) {
-        View inflate = LayoutInflater.from(this).inflate(R.layout.eventa, null);
-        final AlertDialog dialog = new MaterialAlertDialogBuilder(this).setView(inflate).create();
-        inflate.findViewById(R.id.bt).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-    }
-
-
     public void setConnection(View view) {
         if(!shimmer.isConnected()){
             //shimmer.connect(wearable.getAddress(),libraryDefault);
@@ -453,7 +475,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                         connectWithShimmerButton.setEnabled(true);
                     }else {
                         Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
-                        createWebSocketClient();
+                        //createWebSocketClient();
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -523,6 +545,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
     }
 
     public void showEditEvent(View view) {
+
         PopupMenu Window = new PopupMenu(this, view);
         Window.setOnMenuItemClickListener(this);
         Window.inflate(R.menu.menu);
@@ -635,7 +658,7 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
         try {
             //ws://20.71.20.193:8080/websocket
             //"http://192.168.1.19:8080/websocket"
-            uri = new URI("ws://192.168.1.19:8082/websocket");//ws://localhost:8080/websocket   192.168.31.87:4200 ws://192.168.31.87:4200/websocket
+            uri = new URI("ws://20.71.20.193:8080/websocket");//ws://localhost:8080/websocket   192.168.31.87:4200 ws://192.168.31.87:4200/websocket
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -708,10 +731,11 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                                             double i = measurement.getMeasurementValues().get(scr.getIndex() - 1).getGSR() + 0.1;
 
                                             //easy for user to see SCR
-                                            SCRGraphSeries.appendData(new DataPoint(responseDTO.getIndex() - 1, i), true, 200);
+                                            SCRGraphSeries.appendData(new DataPoint(scr.getIndex() - 1, i), true, 200);
                                             //show SCR value on the graph
                                             //SCRGraphSeries.appendData(new DataPoint(scr.getIndex()-1,scr.getValue()),true, 200);
                                             SCRvalues.add(scr);
+
                                             measurement.getMeasurementValues().get(scr.getIndex() - 1).setSCR(scr.getValue());
                                         }
 //                                    List<SCR> returnToDraw = new ArrayList<>(responseDTO.getSCRvalues());
@@ -723,8 +747,6 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
 //                                        measurement.getMeasurementValues().get(scr.getIndex() - 1).setSCR(scr.getValue());
 //                                        Log.e("Position X:",String.valueOf(scr.getIndex()-1));
 //                                        SCRvalues.add(scr);
-
-
                                     }
 
 
@@ -831,9 +853,63 @@ public class MeasurementShimmer extends AppCompatActivity implements PopupMenu.O
                         Gson gson = new Gson();
 
                         String json = gson.toJson(measurementDTO);
-                        testList.add(index,GSR);
-
                         webSocketClient.send(json);
+                        testList.add(GSR);
+                        //Frequency
+                        if(testList.size()==4){
+                            double max_temp = testList.stream().mapToDouble(v ->v).max().orElseThrow(NoClassDefFoundError::new);
+                            double min_temp = testList.stream().mapToDouble(v ->v).min().orElseThrow(NoClassDefFoundError::new);
+                            double range_temp = max_temp-min_temp;
+                            double mean_temp = testList.stream().mapToDouble(v ->v).average().orElseThrow(NoClassDefFoundError::new);
+                            Double[] temp_arr = new Double[testList.size()];
+                            testList.toArray(temp_arr);
+                            double kurt = kurtosis.evaluate(ArrayUtils.toPrimitive(temp_arr));
+                            double skew = skewness.evaluate(ArrayUtils.toPrimitive(temp_arr));
+                            okHttpClient =new OkHttpClient();
+                            formbody = new FormBody.Builder()
+                                    .add("mean",String.valueOf(mean_temp))
+                                    .add("max",String.valueOf(max_temp))
+                                    .add("min",String.valueOf(min_temp))
+                                    .add("range",String.valueOf(range_temp))
+                                    .add("kurt",String.valueOf(kurt))
+                                    .add("skew",String.valueOf(skew))
+                                    .build();
+                            httpRequest =new Request.Builder().url("http://192.168.1.19:3030/predict").post(formbody).build();
+                            okHttpClient.newCall(httpRequest).enqueue(new okhttp3.Callback() {
+                                @Override
+                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                    Log.e("ML","Error");
+                                }
+
+                                @Override
+                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                    String s= response.body().string();
+                                    String withoutAccent = Normalizer.normalize(s, Normalizer.Form.NFD);
+                                    String output = withoutAccent.replaceAll("[^a-zA-Z ]", "");
+                                    outputList.add(output);
+                                    int temp_counter =0 ;
+                                    if(outputList.size()>=2){
+                                        temp_counter=0;
+                                        for (Iterator<String> iterator = outputList.iterator(); iterator.hasNext();) {
+                                            String tem= iterator.next();
+                                            if(tem == "Stress"){
+                                                temp_counter++;
+                                            }
+                                        }
+                                        outputList.clear();
+                                    }
+                                    if(temp_counter>=2){
+                                        progressBar.setProgress(100);
+                                        mediaPlayer.start();
+                                    }else {
+                                        progressBar.setProgress(0);
+//                                        mediaPlayer.stop();
+                                    }
+                                }
+                            });
+                            testList.clear();
+                        }
+
                         //Peak detectionS
 //                        if (index>100){
 //                             signalDetector.setList(testList);

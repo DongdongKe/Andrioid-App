@@ -63,13 +63,17 @@
 <!--                android:text="Event"-->
 <!--                android:visibility="gone" />-->
 
-            <TextView
-                android:id="@+id/ShimmerStatus"
-                android:layout_width="wrap_content"
+            <ProgressBar
+                android:id="@+id/stressLevel"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:max="100"
+                android:layout_marginLeft="150dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="Shimmer"
-                android:textSize="24sp" />
+                android:progressTint="#FF0000"
+                android:progressDrawable="@drawable/progressbar_bg">
+
+            </ProgressBar>
 
             <TextView
                 android:id="@+id/CountdownTimer"
@@ -381,6 +385,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -179,7 +179,7 @@
         android:layout_height="150dp"
         android:background="@drawable/start_button"
         android:padding="15dp"
-        android:text="Start Recording"
+        android:text="Start"
         app:backgroundTint="#3DDC84"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
